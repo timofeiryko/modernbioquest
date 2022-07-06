@@ -1,0 +1,20 @@
+<div class="small text-muted">{{ question.stage }}. Часть: {{ question.part }}, №{{ question.number }}</div>
+<h3 class="card-title">{{ question.competition.name }}, {{ question.year }}</h3>
+
+<p>
+    {{ question.text | linebreaksbr }}
+    <br>
+    {{ question.get_type_display }}
+    <br>
+    {{ question.answers_num }}
+    <br>
+    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
+    Показать ответ
+    </button>
+</p>
+
+<div class="collapse" id="answer{{ question.id }}">
+    <div class="card card-body">
+        {{ question.answer | linebreaksbr }}
+    </div>
+</div>
