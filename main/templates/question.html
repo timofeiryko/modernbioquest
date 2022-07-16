@@ -1,20 +1,83 @@
-<div class="small text-muted">{{ question.stage }}. Часть: {{ question.part }}, №{{ question.number }}</div>
+{% load static %}
+
+<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}, №{{ question.number }}</div>
 <h3 class="card-title">{{ question.competition.name }}, {{ question.year }}</h3>
 
-<p>
-    {{ question.text | linebreaksbr }}
-    <br>
-    {{ question.get_type_display }}
-    <br>
-    {{ question.answers_num }}
-    <br>
-    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
-    Показать ответ
-    </button>
-</p>
+    <p>{{ question.text | linebreaksbr }}</p>
+    <p><div class="text-muted">{{ question.get_type_display }}:</div></p>
 
-<div class="collapse" id="answer{{ question.id }}">
-    <div class="card card-body">
-        {{ question.answer | linebreaksbr }}
+    <div class="row">
+
+    <div class="col">
+    {% for var in question.answer_variants.0  %}
+        <div class="row">
+            <p>{{ var.label }}</p>
+        </div>
+    {% endfor %}
     </div>
-</div>
+
+    <div class="col">
+    {% for var in question.answer_variants.1  %}
+        <div class="row">
+            <p>{{ var }}</p>
+        </div>
+    {% endfor %}
+    </div>
+
+    {% if question.images.images %}
+    <div id="carousel-{{ question.id }}" class="carousel carousel-dark slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+        {% for image in question.images.images.all %}
+            {% if forloop.counter0 == 0 %}
+                <button type="button" data-bs-target="#carousel-{{ question.id }}" data-bs-slide-to="{{forloop.counter0}}" class="active" aria-current="true" aria-label="Image 1"></button>
+            {% else %}
+                <button type="button" data-bs-target="#carousel-{{ question.id }}" data-bs-slide-to="{{forloop.counter0}}" aria-label="Image {{forloop.counter0}}"></button>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="carousel-inner">
+        {% for image in question.images.images.all %}
+            {% if forloop.counter0 == 0 %}
+                <div class="carousel-item active">
+                <img src="{{ image.file.url }}" class="d-block w-100" alt="{{ question.images }}">
+                </div>
+            {% else %}
+                <div class="carousel-item">
+                <img src="{{ image.file.url }}" class="d-block w-100" alt="{{ question.images }}">
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ question.id }}" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ question.id }}" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    {% endif %}
+
+
+    </div>
+    
+    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
+        Показать ответ
+    </button>
+    
+    <div class="collapse" id="answer{{ question.id }}">
+        <div class="card card-body border-0">
+
+            {% for answer in question.answer_variants.0 %}
+                <div class="row">
+                <div class="col">
+                    <p>{% if answer.flag %}<b>{{ answer.label }}</b> {% else %}{{ answer.label }}{% endif %}</p>
+                </div>
+                <div class="col">
+                    <p>{% if answer.flag %}<b>{{ answer.text }}</b> {% else %}{{ answer.text }}{% endif %}</p>
+                </div>
+                </div>
+            {% endfor %}
+        </div>        
+    </div>

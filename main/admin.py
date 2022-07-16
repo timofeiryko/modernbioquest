@@ -1,11 +1,10 @@
-from django.contrib import admin
-from django.forms import ValidationError
-from django.utils.safestring import mark_safe
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
+from django.db.models.query import QuerySet
 
 import nested_admin
 
 from .models import Competition, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer
-
 admin.site.register([Competition, Explanation, Section, Topic, Image])
 
 class ImageLine(nested_admin.NestedStackedInline):

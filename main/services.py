@@ -4,52 +4,71 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 
 from dataclasses import dataclass
 from os import stat
-from typing import Type
+from typing import Any, Sequence, Type
 
-from django.forms import ValidationError
+from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models.query import QuerySet
 
 from .models import BaseQuestion
 from .configs import EVALUATE_THRASHHOLD
 
 
 
-# class QuestionChange:
+
+# TODO Checking answers
+# TODO Validating answers with related models
+
+
+
+# class QuestionChangeService:
 #     """Service used to upload and modify questions. Validation occurs here."""
 
-#     def __init__(self, question: Type[BaseQuestion]) -> None:
+#     def __init__(self, question: Type[BaseQuestion], related_models) -> None:
 #         self.question = question
+#         self.related_models = related_models
     
 #     def _validate_type(self):
 #         """To ensure, that type is correct and number of answers corresponds to this type"""
 
-#         answers = self.question.right_answers.all()
 #         qtype = self.question.type
+
+#         answers = self.question.right_answers.all()
+#         print(f'GOT RELATED: {answers}')
+#         print(qtype)
 
 #         if qtype == 'REL':
 #             if answers.exclude(flag__isnull=True).exists():
 #                 raise ValidationError('Вопрос на соответствие не может иметь заполненные поля "выбор варианта"!')
 
-#     @transaction.atomic
+#         if qtype == 'STR':
+#             # transaction.savepoint_rollback(self._save_id)
+#             raise ValidationError('Всё работает!')
+
 #     def create(self) -> BaseQuestion:
 
+#         # Save question to have an ability to add related models
+#         # self._save_id = transaction.savepoint()
+#         question = self.question
+#         question.full_clean()
+#         question.save()
+#         print('QUESTION SAVED')
+        
+#         # Add and save related
+#         for model_name, model in self.related_models.items():
+#             for related_object in model:
+#                 getattr(question, model_name).add(related_object)
+#         print('RELATED ADDED')
+#         question.save()
+#         print('RELATED SAVED')
+        
 #         self._validate_type()
+#         print('TYPES VALIDATED')
 
-#         file_name, file_type = self._infer_file_name_and_type(file_name, file_type)
+#         return question
 
-#         obj = File(
-#             file=self.file_obj,
-#             original_file_name=file_name,
-#             file_name=file_generate_name(file_name),
-#             file_type=file_type,
-#             uploaded_by=self.user,
-#             upload_finished_at=timezone.now()
-#         )
-
-#         obj.full_clean()
-#         obj.save()
-
-#         return obj
+#     def update(self) -> BaseQuestion:
+#         raise NotImplementedError
 
 # class QuestionService:
 

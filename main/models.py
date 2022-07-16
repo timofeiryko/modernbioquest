@@ -1,5 +1,7 @@
 """Conventioanal Django ORM models. Domain logic (aka business logic) is not here! It is in `services.py`."""
 
+from collections import namedtuple
+from typing import NamedTuple
 from django.db import models
 from django.forms import ValidationError
 from django.utils import timezone
@@ -76,7 +78,7 @@ class Image(BaseModel):
 class Section(BaseModel):
     """To sort questions by quite big areas of knowledge. Every question can be in multiple sections."""
 
-    name = models.CharField(max_length=100)
+    name = models.CharField('Название раздела', max_length=100)
     slug = models.SlugField(max_length=100)
 
     class Meta:
@@ -93,8 +95,8 @@ class Section(BaseModel):
 class Topic(BaseModel):
     """To sort questions by particular topics. Every question can have multiple topics."""
     
-    parent_section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name='topics')
-    name = models.CharField(max_length=100)
+    parent_section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, related_name='topics', verbose_name='Раздел')
+    name = models.CharField('Тема', max_length=100)
     
     class Meta:
         ordering = ['parent_section', 'name']
@@ -161,6 +163,8 @@ class BaseQuestion(BasePolymorphic):
         default=Types.STR,
     )
 
+Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
+
 class Question(BaseQuestion):
     """To store questions from olympiads. Main model with a lot of information.
     Related domain-speccific aspects are in `services.py`."""
@@ -170,12 +174,31 @@ class Question(BaseQuestion):
         related_name='questions', verbose_name=Competition._meta.verbose_name.title()
     )
 
-    year = models.IntegerField('Год проведения', null=True)
+    year = models.IntegerField('Год проведения',         null=True)
     stage = models.CharField('Этап', max_length=100, null=True)
     grade = models.IntegerField('Класс', null=True)
 
     part = models.CharField('Часть', max_length=100, null=True)
     number = models.IntegerField('Номер', null=True)
+
+    @property
+    def answer_variants(self):
+        if self.type == 'REL':
+            answer_vars = []
+            answer_vars_rel = []
+            for answer in self.right_answers.all():
+                if answer.label and answer.text:
+                    answer_vars.append(Variant(answer.label, answer.text, answer.flag))
+                else:
+                    answer_vars_rel.append(answer.label)
+
+            return answer_vars, answer_vars_rel
+        else:
+            answer_vars =  [Variant(answer.label, answer.text, answer.flag) for answer in self.right_answers.all()]
+            answer_vars_rel = None
+
+        return answer_vars, answer_vars_rel
+
 
     class Meta:
         verbose_name = 'Вопрос с олимпиады'

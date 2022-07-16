@@ -115,7 +115,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="" id="{{ section.slug }}">
                             <label class="form-check-label" for="{{ section.slug }}">
-                                {{ section.name }}
+                                <p>{{ section.name }}</p>
                         </div>
                     {% endfor %}
                     <button class="btn btn-primary" id="button-filter" type="button">
@@ -144,3 +144,54 @@
     </div>
 </div>
 {% endblock content %}
+
+
+
+
+
+<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}, №{{ question.number }}</div>
+<h3 class="card-title">{{ question.competition.name }}, {{ question.year }}</h3>
+
+    <p><div class="text-muted">{{ question.get_type_display }}</div></p>
+    <p>{{ question.text | linebreaksbr }}</p>
+
+    <div class="row">
+
+    <div class="col">
+    {% for var in question.answer_variants.0  %}
+        <div class="row">
+            <p>{{ var.label }}</p>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="col">
+    {% for var in question.answer_variants.1  %}
+        <div class="row">
+            <p>{{ var }}</p>
+        </div>
+    {% endfor %}
+    </div>
+
+    </div>
+    
+    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
+        Показать ответ
+    </button>
+    
+    <div class="collapse" id="answer{{ question.id }}">
+        <div class="card card-body border-0">
+
+            {% for answer in question.right_answers.all %}
+            <div class="container">
+                <div class="row">
+                <div class="col">
+                    {% if answer.flag %}<b>{{ answer.label }}</b> {% else %}{{ answer.label }}{% endif %}
+                </div>
+                <div class="col">
+                    {% if answer.flag %}<b>{{ answer.text }}</b> {% else %}{{ answer.text }}{% endif %}
+                </div>
+                </div>
+            </div>
+            {% endfor %}           
+    </div>
