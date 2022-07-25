@@ -8,14 +8,13 @@ from .configs import QUESTIONS_PER_PAGE
 
 import git
 
-# COMMENT TO TEST WEBHOOKS
+# COMMENT TO TEST WEBHOOKS 3
 
 @csrf_exempt
 def update(request):
     if request.method == 'POST':
         repo = git.Repo('/home/quest/quest.pythonanywhere.com')
         origin = repo.remotes.origin
-
         origin.pull()
 
         return HttpResponse('Updated code on PythonAnywhere')
