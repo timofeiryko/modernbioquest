@@ -11,3 +11,5 @@ scales_dict = {
 }
 Scales = namedtuple('Scales', scales_dict)
 SCALES = Scales(**scales_dict)
+
+QUESTIONS_PER_PAGE = 3

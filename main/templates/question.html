@@ -9,23 +9,23 @@
     <div class="row">
 
     <div class="col">
-    {% for var in question.answer_variants.0  %}
+    {% for variant in question.answer_variants.0  %}
         <div class="row">
-            <p>{{ var.label }}</p>
+            <p>{{ variant.label }}</p>
         </div>
     {% endfor %}
     </div>
 
     <div class="col">
-    {% for var in question.answer_variants.1  %}
+    {% for variant in question.answer_variants.1  %}
         <div class="row">
-            <p>{{ var }}</p>
+            <p>{{ variant }}</p>
         </div>
     {% endfor %}
     </div>
 
     {% if question.images.images %}
-    <div id="carousel-{{ question.id }}" class="carousel carousel-dark slide" data-bs-ride="carousel">
+    <div id="carousel-{{ question.id }}" class="carousel carousel-dark slide" data-bs-ride="carousel-{{ question.id }}" data-bs-interval="false">
         <div class="carousel-indicators">
         {% for image in question.images.images.all %}
             {% if forloop.counter0 == 0 %}
@@ -72,7 +72,7 @@
             {% for answer in question.answer_variants.0 %}
                 <div class="row">
                 <div class="col">
-                    <p>{% if answer.flag %}<b>{{ answer.label }}</b> {% else %}{{ answer.label }}{% endif %}</p>
+                    <p>{% if answer.flag %}<mark style="background-color:rgba(40, 167, 69, 0.5); border-radius:5px"><b>{{ answer.label }}</b></mark> {% else %}{{ answer.label }}{% endif %}</p>
                 </div>
                 <div class="col">
                     <p>{% if answer.flag %}<b>{{ answer.text }}</b> {% else %}{{ answer.text }}{% endif %}</p>

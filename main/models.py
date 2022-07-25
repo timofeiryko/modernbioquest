@@ -124,8 +124,10 @@ class BaseQuestion(BasePolymorphic):
     """Abstract model to store different questions: both olympiads and just tests."""
 
     text = models.TextField('Текст вопроса', null=True)
+    title = models.CharField('Заголовок', max_length=100, null=True, blank=True)
 
-    max_score = models.FloatField('Балл', null=True, default=0.0)    
+    max_score = models.FloatField('Балл', null=True, default=1.0)  
+
     @property
     def answers_num(self):
         answers = [ans for ans in self.right_answers.all() if ans.is_full_answer]
@@ -163,6 +165,8 @@ class BaseQuestion(BasePolymorphic):
         default=Types.STR,
     )
 
+    listed = models.BooleanField('Публичный доступ', default=True)
+
 Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
 
 class Question(BaseQuestion):
@@ -174,7 +178,7 @@ class Question(BaseQuestion):
         related_name='questions', verbose_name=Competition._meta.verbose_name.title()
     )
 
-    year = models.IntegerField('Год проведения',         null=True)
+    year = models.IntegerField('Год проведения', null=True)
     stage = models.CharField('Этап', max_length=100, null=True)
     grade = models.IntegerField('Класс', null=True)
 
@@ -206,7 +210,7 @@ class Question(BaseQuestion):
         ordering = ['-id']
 
     def __str__(self):
-        shortened = str(self.text)[:25] + '...'
+        shortened = str(self.text)[:25] + '...' if not self.title else self.title
         return shortened
 
 class SolvedQuestion(BaseModel):
@@ -219,7 +223,7 @@ class SolvedQuestion(BaseModel):
     user_score = models.FloatField('Балл', null=True, default=0.0)
 
     # TODO: it should be equal to the number of answers, validator
-    user_points = models.IntegerField('Количество ответов', null=True)
+    user_points = models.IntegerField('Количество верных ответов', null=True)
     
     solved_by = models.ForeignKey(
         User,
@@ -235,9 +239,9 @@ class BaseAnswer(BaseModel):
     We need it, because we want to have an ability to add multiple answers for one question (if we have several points in it, for example)."""
 
     label = models.TextField('Вариант или название пункта', null=True)
-
     text = models.TextField('Текстовый ответ', null=True, blank=True)
     flag = models.BooleanField('Выбор варианта', null=True, blank=True)
+    weight = models.FloatField('Вес', null=True, blank=True)
 
     @property
     def has_flag(self) -> bool:

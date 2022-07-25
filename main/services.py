@@ -2,24 +2,24 @@
 Most of this logic is related with objects, data stuctures etc.
 The `scripts.py` is the other place where domain logic is placed (just some tools, not related with particular abstractions at all)."""
 
-from dataclasses import dataclass
-from os import stat
-from typing import Any, Sequence, Type
-
-from django.core.exceptions import ValidationError
-from django.db import transaction
-from django.db.models.query import QuerySet
-
-from .models import BaseQuestion
-from .configs import EVALUATE_THRASHHOLD
-
-
 
 
 # TODO Checking answers
 # TODO Validating answers with related models
 
 
+# === Below just a code I want to save ===
+
+# from dataclasses import dataclass
+# from os import stat
+# from typing import Any, Sequence, Type
+
+# from django.core.exceptions import ValidationError
+# from django.db import transaction
+# from django.db.models.query import QuerySet
+
+# from .models import BaseQuestion
+# from .configs import EVALUATE_THRASHHOLD
 
 # class QuestionChangeService:
 #     """Service used to upload and modify questions. Validation occurs here."""

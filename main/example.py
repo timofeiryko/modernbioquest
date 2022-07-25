@@ -1,3 +1,5 @@
+"""Example of using @dataclass as a service (not implemented logic with __post_init__)"""
+
 from dataclasses import dataclass, field
 
 class MyRandomClass:
