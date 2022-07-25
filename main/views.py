@@ -8,6 +8,8 @@ from .configs import QUESTIONS_PER_PAGE
 
 import git
 
+# WEBHOOKS WORKED!
+
 @csrf_exempt
 def update(request):
     if request.method == 'POST':
@@ -35,6 +37,16 @@ def problems(request):
     is_paginated = page.has_other_pages()
     prev_url = f'?page={page.previous_page_number()}' if page.has_previous() else ''
     next_url = f'?page={page.next_page_number()}' if page.has_next() else ''
+
+    if page.has_previous():
+        prev_url = '?page={}'.format(page.previous_page_number())
+    else:
+        prev_url = ''
+
+    if page.has_next():
+        next_url = '?page={}'.format(page.next_page_number())
+    else:
+        next_url = ''
 
     context = {
         'nav': [True, False, False],
