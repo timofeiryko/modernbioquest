@@ -8,7 +8,7 @@ from .configs import QUESTIONS_PER_PAGE
 
 import git
 
-# COMMENT TO TEST WEBHOOKS 8
+# COMMENT TO TEST WEBHOOKS 9
 
 @csrf_exempt
 def update(request):
