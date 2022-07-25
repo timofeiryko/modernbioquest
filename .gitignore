@@ -1,3 +1,5 @@
+pdfparsing/*
+!pdfparsing/*.ipynb
 # Django
 *.log
 *.pot
