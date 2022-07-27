@@ -30,7 +30,7 @@ def about(request):
 
 def problems(request):
 
-    questions = Question.objects.order_by('-id')
+    questions = Question.objects.order_by('-id').filter(listed = True)
     sections = Section.objects.order_by('name')
 
     paginator = Paginator(questions, QUESTIONS_PER_PAGE)
