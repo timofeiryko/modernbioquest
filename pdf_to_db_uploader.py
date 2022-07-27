@@ -17,7 +17,7 @@ from main.scripts import get_max_score_zakl, generate_question_link
 P2_SCALE = 'LATEST_ZAKL_P2'
 P3_SCALE = 'LATEST_ZAKL_P3'
 COMPETITION_NAME = 'ВсОШ'
-YEAR = 2021
+YEAR = 2019
 STAGE = 'Заключительный'
 GRADE = 11
 
@@ -36,7 +36,7 @@ def load_data():
     print('LOADING DATA FROM PICKLE...')
 
     sys.modules['parser_dataclasses'] = pdfparsing.parser_dataclasses
-    cleaned_questions = pickle.load(open(os.path.join('main', 'db_pickles' ,'zakl2021.p'), 'rb'))
+    cleaned_questions = pickle.load(open(os.path.join('main', 'db_pickles' ,'zakl2019.p'), 'rb'))
 
     print('EXAMPLE DATA:')
     print(cleaned_questions[4, 3].text)
@@ -112,7 +112,7 @@ def main():
     upload_related(cleaned_questions, ids)
     
 def remove_uploaded():
-    Question.objects.filter(quauthor__username = 'parser').delete()
+    Question.objects.filter(quauthor__username = 'parser').filter(year = 2019).delete()
 
 if __name__ == '__main__':
     main()
