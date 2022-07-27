@@ -6,10 +6,10 @@ from collections import namedtuple
 EVALUATE_THRASHHOLD = 0.2
 
 # Scales for checking answers with multiple answers
-scales_dict = {
-    'DEFAULT': (0, 0.5, 1, 1.5, 2, 2.5)
+SCALES = {
+    'DEFAULT': (0.0, 0.5, 1.0, 1.5, 2.0, 2.5),
+    'LATEST_ZAKL_P2': (0.0, 0.0, 0.5, 1.0, 1.5, 2.5),
+    'LATEST_ZAKL_P3': (0.0, 0.0, 1.0, 2.0, 3.0, 5.0)
 }
-Scales = namedtuple('Scales', scales_dict)
-SCALES = Scales(**scales_dict)
 
-QUESTIONS_PER_PAGE = 3
+QUESTIONS_PER_PAGE = 10

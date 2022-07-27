@@ -1,31 +1,45 @@
 {% load static %}
 
-<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}, №{{ question.number }}</div>
-<h3 class="card-title">{{ question.competition.name }}, {{ question.year }}</h3>
+<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}: {{ question.numbers_info }}</div>
+<h3 class="card-title">{{ question.verbose_title }}</h3>
 
     <p>{{ question.text | linebreaksbr }}</p>
     <p><div class="text-muted">{{ question.get_type_display }}:</div></p>
 
-    <div class="row">
+    {% if question.type == 'REL' or question.type == 'STR'%}
 
-    <div class="col">
-    {% for variant in question.answer_variants.0  %}
         <div class="row">
+
+        <div class="col">
+        {% for variant in question.answer_variants.0  %}
+            <div class="row">
+                <p>{{ variant.label }}</p>
+            </div>
+        {% endfor %}
+        </div>
+
+        <div class="col">
+        {% for variant in question.answer_variants.1  %}
+            <div class="row">
+                <p>{{ variant }}</p>
+            </div>
+        {% endfor %}
+        </div>
+
+        </div>
+
+    {% else %}
+
+        {% for variant in question.answer_variants.0  %}
             <p>{{ variant.label }}</p>
-        </div>
-    {% endfor %}
-    </div>
-
-    <div class="col">
-    {% for variant in question.answer_variants.1  %}
-        <div class="row">
-            <p>{{ variant }}</p>
-        </div>
-    {% endfor %}
-    </div>
+        {% endfor %}
+    
+    {% endif %}
 
     {% if question.images.images %}
     <div id="carousel-{{ question.id }}" class="carousel carousel-dark slide" data-bs-ride="carousel-{{ question.id }}" data-bs-interval="false">
+        
+        {% if question.images.images.count > 1 %}
         <div class="carousel-indicators">
         {% for image in question.images.images.all %}
             {% if forloop.counter0 == 0 %}
@@ -35,6 +49,8 @@
             {% endif %}
         {% endfor %}
         </div>
+        {% endif %}
+
         <div class="carousel-inner">
         {% for image in question.images.images.all %}
             {% if forloop.counter0 == 0 %}
@@ -48,6 +64,8 @@
             {% endif %}
         {% endfor %}
         </div>
+
+        {% if question.images.images.count > 1 %}
         <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ question.id }}" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Previous</span>
@@ -56,11 +74,11 @@
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Next</span>
         </button>
+        {% endif %}
+
     </div>
     {% endif %}
 
-
-    </div>
     
     <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
         Показать ответ
@@ -69,15 +87,21 @@
     <div class="collapse" id="answer{{ question.id }}">
         <div class="card card-body border-0">
 
-            {% for answer in question.answer_variants.0 %}
-                <div class="row">
-                <div class="col">
+            {% if question.type == 'REL' or question.type == 'STR'%}
+                {% for answer in question.answer_variants.0 %}
+                    <div class="row">
+                    <div class="col">
+                        <p>{% if answer.flag %}<mark style="background-color:rgba(40, 167, 69, 0.5); border-radius:5px"><b>{{ answer.label }}</b></mark> {% else %}{{ answer.label }}{% endif %}</p>
+                    </div>
+                    <div class="col">
+                        <p>{% if answer.flag %}<b>{{ answer.text }}</b> {% else %}{{ answer.text }}{% endif %}</p>
+                    </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {% for answer in question.answer_variants.0 %}
                     <p>{% if answer.flag %}<mark style="background-color:rgba(40, 167, 69, 0.5); border-radius:5px"><b>{{ answer.label }}</b></mark> {% else %}{{ answer.label }}{% endif %}</p>
-                </div>
-                <div class="col">
-                    <p>{% if answer.flag %}<b>{{ answer.text }}</b> {% else %}{{ answer.text }}{% endif %}</p>
-                </div>
-                </div>
-            {% endfor %}
+                {% endfor %}                
+            {% endif %}
         </div>        
     </div>

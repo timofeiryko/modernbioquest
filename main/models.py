@@ -11,6 +11,8 @@ from django.core.validators import URLValidator
 
 from polymorphic.models import PolymorphicModel
 
+from .scripts import generate_question_link
+
 # from .services import QuestionService
 
 class BaseModel(models.Model):
@@ -180,12 +182,52 @@ class Question(BaseQuestion):
 
     year = models.IntegerField('Год проведения', null=True)
     stage = models.CharField('Этап', max_length=100, null=True)
+    # This field is kind of depricated: it is no longer used in views to get grade information
+    # However, we keep it just in case (it says for which grade the question was originally uploaded)
     grade = models.IntegerField('Класс', null=True)
 
     part = models.CharField('Часть', max_length=100, null=True)
-    number = models.IntegerField('Номер', null=True)
+
+    number_9 = models.IntegerField('Номер в 9 классе', null=True, default=0)
+    number_10 = models.IntegerField('Номер в 10 классе', null=True, default=0)
+    number_11 = models.IntegerField('Номер в 11 классе', null=True, default=0)
 
     @property
+    def number(self):
+        if self.grade == 9:
+            return self.number_9
+        if self.grade == 10:
+            return self.number_10
+        if self.grade == 11:
+            return self.number_11
+
+    @property
+    def numbers_info(self):
+        output = []
+        if self.number_9:
+            output.append(f'№{ self.number_9 } (9 кл.)')
+        if self.number_10:
+            output.append(f'№{ self.number_10 } (10 кл.)')
+        if self.number_11:
+            output.append(f'№{ self.number_11 } (11 кл.)')
+
+        return ', '.join(output)
+
+    @property
+    def verbose_title(self):
+        output = f'{self.competition.name}, {self.year}'
+        if self.title:
+            output += (': ' + self.title)
+        return output
+
+    @property
+    def link(self):
+        return generate_question_link(
+            self.competition.name, self.stage, self.year,
+            self.grade, self.number
+        )
+        
+
     def answer_variants(self):
         if self.type == 'REL':
             answer_vars = []
@@ -264,7 +306,7 @@ class RightAnswer(BaseAnswer):
     parent_question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE, null=True, blank=True, related_name='right_answers')
 
     class Meta:
-        ordering = ['parent_question']
+        ordering = ['parent_question', 'label']
         verbose_name = 'Вариант или пункт'
         verbose_name_plural = 'Вариант или пункт'
 
