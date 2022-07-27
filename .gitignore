@@ -1,5 +1,6 @@
 pdfparsing/*
 !pdfparsing/*.ipynb
+!pdfparsing/parser_dataclasses.py
 # Django
 *.log
 *.pot
