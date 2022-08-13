@@ -2,8 +2,8 @@ from django.contrib import admin
 
 import nested_admin
 
-from .models import Competition, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer
-admin.site.register([Competition, Explanation, Section, Image])
+from .models import Competition, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
+admin.site.register([Competition, Explanation, Section, Image, Test])
 
 @admin.register(Topic)
 class TopicAdmin(nested_admin.NestedModelAdmin):
@@ -52,6 +52,29 @@ class QuestionAdmin(admin.ModelAdmin):
 
     list_display = ['verbose_title', 'part', 'number']
     list_filter = ['listed', 'competition', 'year', 'stage']
+
+@admin.register(TestQuestion)
+class TestQuestionAdmin(admin.ModelAdmin):
+
+    model = TestQuestion
+    inlines = [RightAnswerIine]
+    exclude = ['quauthor']
+
+    def save_model(self, request, obj, form, change): 
+        obj.user = request.user
+        obj.save()
+
+    def save_formset(self, request, form, formset, change): 
+        if formset.model == Question:
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.quauthor = request.user
+                instance.save()
+        else:
+            formset.save()
+
+    list_display = ['parent_test', 'shortened']
+    list_filter = ['parent_test']
     
 
 admin.site.register(RightAnswer)

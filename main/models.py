@@ -7,7 +7,7 @@ from django.forms import ValidationError
 from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.core.validators import URLValidator
+from django.core.validators import URLValidator, validate_slug
 
 from polymorphic.models import PolymorphicModel
 
@@ -169,7 +169,72 @@ class BaseQuestion(BasePolymorphic):
 
     listed = models.BooleanField('Публичный доступ', default=True)
 
+    def answer_variants(self):
+        if self.type == 'REL':
+            answer_vars = []
+            answer_vars_rel = []
+            for answer in self.right_answers.all():
+                if answer.label and answer.text:
+                    answer_vars.append(Variant(answer.label, answer.text, answer.flag))
+                else:
+                    answer_vars_rel.append(answer.label)
+
+            return answer_vars, answer_vars_rel
+        else:
+            answer_vars =  [Variant(answer.label, answer.text, answer.flag) for answer in self.right_answers.all()]
+            answer_vars_rel = None
+
+        return answer_vars, answer_vars_rel
+
 Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
+
+class Test(BaseModel):
+    """To store tests (sets of questions)."""
+    
+    title = models.CharField('Название', max_length=100)
+    description = models.TextField('Описание', null=True, blank=True)
+
+    sections = models.ManyToManyField(
+        Section, blank=True,
+        related_name='%(class)s', verbose_name=Section._meta.verbose_name_plural.title()
+    )
+    topics = models.ManyToManyField(
+        Topic, blank=True, 
+        related_name='%(class)s', verbose_name=Topic._meta.verbose_name_plural.title()
+    )
+
+    competition = models.ForeignKey(
+        Competition, on_delete=models.CASCADE, null=True, blank=True,
+        related_name='tests', verbose_name=Competition._meta.verbose_name.title()
+    )
+
+    class Meta:
+        verbose_name = 'Тест'
+        verbose_name_plural = 'Тесты'
+        ordering = ['title']
+
+    def __str__(self):
+        shortened = str(self.title)[:25] + '...' if len(self.title) > 25 else self.title
+        return shortened
+
+class TestQuestion(BaseQuestion):
+    """To store test questions for online schools etc"""
+
+    parent_test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, related_name='questions', verbose_name='Тест')
+
+    @property
+    def shortened(self):
+        return str(self.text)[:25] + '...' if not self.title else self.title
+
+    class Meta:
+        verbose_name = 'Вопрос теста'
+        verbose_name_plural = 'Вопросы тетов'
+        ordering = ['parent_test', 'title']
+
+    def __str__(self):
+        return self.shortened
+
+
 
 class Question(BaseQuestion):
     """To store questions from olympiads. Main model with a lot of information.
@@ -226,24 +291,6 @@ class Question(BaseQuestion):
             self.competition.name, self.stage, self.year,
             self.grade, self.number
         )
-        
-
-    def answer_variants(self):
-        if self.type == 'REL':
-            answer_vars = []
-            answer_vars_rel = []
-            for answer in self.right_answers.all():
-                if answer.label and answer.text:
-                    answer_vars.append(Variant(answer.label, answer.text, answer.flag))
-                else:
-                    answer_vars_rel.append(answer.label)
-
-            return answer_vars, answer_vars_rel
-        else:
-            answer_vars =  [Variant(answer.label, answer.text, answer.flag) for answer in self.right_answers.all()]
-            answer_vars_rel = None
-
-        return answer_vars, answer_vars_rel
 
 
     class Meta:
