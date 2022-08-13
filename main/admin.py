@@ -3,7 +3,12 @@ from django.contrib import admin
 import nested_admin
 
 from .models import Competition, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer
-admin.site.register([Competition, Explanation, Section, Topic, Image])
+admin.site.register([Competition, Explanation, Section, Image])
+
+@admin.register(Topic)
+class TopicAdmin(nested_admin.NestedModelAdmin):
+    list_display = ['name', 'parent_section']
+    list_filter = ['parent_section']
 
 class ImageLine(nested_admin.NestedStackedInline):
     model = Image
