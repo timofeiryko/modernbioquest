@@ -45,7 +45,7 @@ class QuestionAdmin(admin.ModelAdmin):
         else:
             formset.save()
 
-    list_display = ['part', 'number', 'verbose_title']
+    list_display = ['verbose_title', 'part', 'number']
     list_filter = ['listed', 'competition', 'year', 'stage']
     
 
