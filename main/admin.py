@@ -44,6 +44,9 @@ class QuestionAdmin(admin.ModelAdmin):
                 instance.save()
         else:
             formset.save()
+
+    list_display = ['part', 'number', 'verbose_title']
+    list_filter = ['listed', 'competition', 'year', 'stage']
     
 
 admin.site.register(RightAnswer)
