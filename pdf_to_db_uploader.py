@@ -131,4 +131,4 @@ def remove_uploaded():
     Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2019, 2021, 2022]).delete()
 
 if __name__ == '__main__':
-    remove_uploaded()
+    main()
