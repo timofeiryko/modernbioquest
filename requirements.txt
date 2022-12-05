@@ -22,7 +22,6 @@ django-polymorphic==3.1.0
 django-sekizai==3.0.1
 django-treebeard==4.5.1
 djangocms-admin-style==3.1.1
-edawesome @ file:///home/dreamtim/Desktop/Coding/Pats/edawesome/dist/edawesome-0.1.4.tar.gz
 entrypoints==0.4
 executing==0.8.3
 fonttools==4.38.0
