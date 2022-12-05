@@ -113,7 +113,7 @@ def upload_related(cleaned_questions, ids):
 
 def main():
 
-    for upload_iter in [2019, 2021, 2022]:
+    for upload_iter in [2018, 2019, 2021, 2022]:
         YEAR = upload_iter
         FILENAME = f'reg_parts_1-2_{YEAR}.p'
         logging.info(f'UPLOADING YEAR {YEAR}...')
