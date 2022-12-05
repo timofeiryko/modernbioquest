@@ -14,15 +14,15 @@ django.setup()
 
 from main.models import Competition, Explanation, Section, Topic, Question, RightAnswer, User
 import pdfparsing.parser_dataclasses
-from main.scripts import get_max_score_zakl, generate_question_link
+from main.scripts import get_max_score_zakl
 
 logging.basicConfig(filename=f'parsing-{date.today()}.log', level=logging.DEBUG)
 
 # Better to parse args from terminal, but I am lazy and I will just modify this code file
-P2_SCALE = 'LATEST_ZAKL_P2'
+P2_SCALE = 'DEFAULT'
 P3_SCALE = 'LATEST_ZAKL_P3'
 COMPETITION_NAME = 'ВсОШ'
-STAGE = 'Заключительный'
+STAGE = 'Региональный'
 GRADE = 11
 
 def get_type_2022(part: int) -> str:
@@ -35,7 +35,7 @@ def get_type_2022(part: int) -> str:
     elif part == 5:
         return 'STR'
 
-def load_data():
+def load_data(FILENAME):
     
     logging.info('LOADING DATA FROM PICKLE...')
 
@@ -51,7 +51,7 @@ def load_data():
     return cleaned_questions
 
 @transaction.atomic
-def upload_questions(cleaned_questions):
+def upload_questions(cleaned_questions, YEAR):
 
     ids = []
 
@@ -113,16 +113,13 @@ def upload_related(cleaned_questions, ids):
 
 def main():
 
-    global FILENAME
-    global YEAR
-
     for upload_iter in [2019, 2021, 2022]:
         YEAR = upload_iter
         FILENAME = f'zakl{YEAR}.p'
         logging.info(f'UPLOADING YEAR {YEAR}...')
 
-        cleaned_questions = load_data()
-        ids = upload_questions(cleaned_questions)
+        cleaned_questions = load_data(FILENAME)
+        ids = upload_questions(cleaned_questions, YEAR)
         upload_related(cleaned_questions, ids)
 
         logging.info(f'UPLOADED YEAR {YEAR}!')

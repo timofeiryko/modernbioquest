@@ -228,7 +228,7 @@ class TestQuestion(BaseQuestion):
 
     class Meta:
         verbose_name = 'Вопрос теста'
-        verbose_name_plural = 'Вопросы тетов'
+        verbose_name_plural = 'Вопросы тестов'
         ordering = ['parent_test', 'title']
 
     def __str__(self):
@@ -281,8 +281,8 @@ class Question(BaseQuestion):
     @property
     def verbose_title(self):
         output = f'{self.competition.name}, {self.year}'
-        if self.title:
-            output += (': ' + self.title)
+        title  = self.title if self.title else str(self)
+        output += (': ' + title)
         return output
 
     @property
