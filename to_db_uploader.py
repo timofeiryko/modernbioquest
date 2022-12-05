@@ -115,7 +115,7 @@ def main():
 
     for upload_iter in [2019, 2021, 2022]:
         YEAR = upload_iter
-        FILENAME = f'zakl{YEAR}.p'
+        FILENAME = f'reg_parts_1-2_{YEAR}.p'
         logging.info(f'UPLOADING YEAR {YEAR}...')
 
         cleaned_questions = load_data(FILENAME)
@@ -123,6 +123,7 @@ def main():
         upload_related(cleaned_questions, ids)
 
         logging.info(f'UPLOADED YEAR {YEAR}!')
+    
     
 def remove_uploaded():
     Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2019, 2021, 2022]).delete()
