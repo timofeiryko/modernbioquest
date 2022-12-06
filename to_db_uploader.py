@@ -130,8 +130,11 @@ def main():
         logging.info(f'UPLOADED YEAR {YEAR}!')
     
     
-def remove_uploaded():
-    Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2019, 2021, 2022]).delete()
+def remove_uploaded_zakls():
+    Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2019, 2021, 2022]).filter(stage='Заключительный').delete()
+
+def remove_uploaded_regs():
+    Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2018, 2019, 2021, 2022]).filter(stage='Региональный').delete()
 
 if __name__ == '__main__':
     main()
