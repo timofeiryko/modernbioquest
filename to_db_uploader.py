@@ -43,9 +43,12 @@ def load_data(FILENAME):
 
     sys.modules['parser_dataclasses'] = pdfparsing.parser_dataclasses
     cleaned_questions = pickle.load(open(os.path.join('main', 'db_pickles', FILENAME), 'rb'))
-
+    
     logging.info('EXAMPLE DATA:')
-    logging.info(cleaned_questions[4, 3].text)
+    try:
+        logging.info(cleaned_questions[4, 3].text)
+    except KeyError:
+        logging.info(cleaned_questions[2018, 1].question.text)
     del sys.modules['parser_dataclasses']
 
     logging.info('DATA LOADED!')
