@@ -48,7 +48,7 @@ def load_data(FILENAME):
     try:
         logging.info(cleaned_questions[4, 3].text)
     except KeyError:
-        logging.info(cleaned_questions[2018, 1].question.text)
+        logging.info(cleaned_questions[2018, 353].question.text)
     del sys.modules['parser_dataclasses']
 
     logging.info('DATA LOADED!')
