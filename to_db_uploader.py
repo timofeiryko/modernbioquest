@@ -26,6 +26,7 @@ P3_SCALE = 'LATEST_ZAKL_P3'
 COMPETITION_NAME = 'ВсОШ'
 STAGE = 'Региональный'
 GRADE = 11
+YEARS = [2018, 2019, 2020, 2021]
 
 def get_type_2022(part: int) -> str:
     if part == 1:
@@ -117,8 +118,7 @@ def upload_related(cleaned_questions, ids):
 
 
 def main():
-
-    for upload_iter in [2018, 2019, 2021, 2022]:
+    for upload_iter in YEARS:
         YEAR = upload_iter
         FILENAME = f'reg_parts_1-2_{YEAR}.p'
         logging.info(f'UPLOADING YEAR {YEAR}...')
@@ -131,10 +131,10 @@ def main():
     
     
 def remove_uploaded_zakls():
-    Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2019, 2021, 2022]).filter(stage='Заключительный').delete()
+    Question.objects.filter(quauthor__username = 'parser').filter(year__in=YEARS).filter(stage='Заключительный').delete()
 
 def remove_uploaded_regs():
-    Question.objects.filter(quauthor__username = 'parser').filter(year__in=[2018, 2019, 2021, 2022]).filter(stage='Региональный').delete()
+    Question.objects.filter(quauthor__username = 'parser').filter(year__in=YEARS).filter(stage='Региональный').delete()
 
 if __name__ == '__main__':
     main()
