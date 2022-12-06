@@ -18,6 +18,8 @@ from main.scripts import get_max_score_zakl
 
 logging.basicConfig(filename=f'parsing-{date.today()}.log', level=logging.DEBUG)
 
+from pdfparsing.parser_dataclasses import QuestionDraft, CleanedQuestion
+
 # Better to parse args from terminal, but I am lazy and I will just modify this code file
 P2_SCALE = 'DEFAULT'
 P3_SCALE = 'LATEST_ZAKL_P3'
