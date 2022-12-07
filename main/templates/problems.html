@@ -7,8 +7,12 @@
 <header class="py-1 bg-light border-bottom mb-4">
     <div class="container">
         <div class="text-center my-5">
-            <h1 class="fw-bolder">Коллекция вопросов с ответами</h1>
-            <p class="lead mb-0">Автоматическая проверка вопросов и статистика пока что не доступны...</p>
+            {% if h1_content %}
+                <h1 class="fw-bolder">{% autoescape off %}{{ h1_content }}{% endautoescape %}</h1>
+            {% endif %}
+            {% if p_content %}
+                <p class="lead mb-0">{% autoescape off %}{{ p_content }}{% endautoescape %}</p>
+            {% endif %}
         </div>
     </div>
 </header>
@@ -117,11 +121,15 @@
             <div class="card mb-4">
                 <div class="card-header">Поиск вопросов</div>
                 <div class="card-body">
-                    <div class="input-group">
-                        <input class="form-control" type="text" placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..." aria-describedby="button-search" />
-                        <button class="btn btn-primary" id="button-search" type="button">
-                            <i class="fa fa-search"></i>
-                        </button>
+                    <form>
+                        <div class="input-group">
+                            <input class="form-control" type="text"
+                                placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                aria-describedby="button-search" name="query"/>
+                            <button class="btn btn-primary" id="button-search" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
                     </div>
                 </div>
             </div>
@@ -129,16 +137,28 @@
             <div class="card mb-4">
                 <div class="card-header">Фильтр по разделам</div>
                 <div class="card-body">
-                    {% for section in sections %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="{{ section.slug }}">
-                            <label class="form-check-label" for="{{ section.slug }}">
-                                <p>{{ section.name }}</p>
-                        </div>
-                    {% endfor %}
-                    <button class="btn btn-primary" id="button-filter" type="button">
-                        Отфильтровать!
-                    </button>
+                    <form action={% url 'main:problems' %} method="get">
+                        {% for section in sections %}
+                            <div class="form-check">
+                                {% if section.slug in requested_sections %}
+                                    <input class="form-check-input" type="checkbox" id="{{ section.slug }}" name="section" value="{{ section.slug }}" checked>
+                                {% else %}
+                                    <input class="form-check-input" type="checkbox" id="{{ section.slug }}" name="section" value="{{ section.slug }}">
+                                {% endif %}
+                                <label class="form-check-label" for="{{ section.slug }}">
+                                    <p>{{ section.name }}</p>
+                            </div>
+                        {% endfor %}
+                        <button class="btn btn-primary" id="button-filter" type="submit">
+                            Отфильтровать!
+                        </button>
+                    </form>
+                    {% if requested_sections %}
+                        <br>
+                        <a class="btn btn-secondary" id="button-filter" href={% url 'main:problems' %}>
+                            Все разделы
+                        </a>
+                {% endif %}
                 </div>
             </div>
             <!-- Sections and topics widget-->
@@ -147,10 +167,10 @@
                 <div class="card-body">
                     <ul class="list-group">
                         {% for section in sections %}
-                        <li class="list-group-item"><a href="#!">{{ section.name }}</a>
+                        <li class="list-group-item"><a href="{{ section.get_absolute_url }}">{{ section.name }}</a>
                             <ul class="list-group inner">
                                 {% for topic in section.topics.all %}
-                                <li class="list-group-item border-0"><a href="#!">{{ topic.name }}</a></li>
+                                <li class="list-group-item border-0"><a href="?topic={{ topic.name }}">{{ topic.name }}</a></li>
                                 {% endfor %}
                             </ul>
                         </li>

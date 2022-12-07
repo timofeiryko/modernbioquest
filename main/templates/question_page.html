@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Страница вопроса{% endblock %}
+
+{% block header %}
+<!-- Page header with logo and tagline-->
+<header class="py-1 bg-light border-bottom mb-4">
+    <div class="container">
+        <div class="text-center my-5">
+            <p class="lead mb-0">Страница вопроса. Этой ссылкой можно поделиться!</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+{% block content %}
+<!-- Page content-->
+<div class="container">
+    <div class="row">
+        <!-- Questions-->
+        <div class="col-lg-8">
+            {% for question in questions %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% include "question.html" %}
+                </div>
+            </div>
+            {% endfor %} 
+        </div>
+    </div>
+</div>
+{% endblock content %}

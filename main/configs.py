@@ -13,3 +13,12 @@ SCALES = {
 }
 
 QUESTIONS_PER_PAGE = 10
+
+STAGE_SLUGS = {
+    'Отборочный': 'otbor',
+    'Муниципальный': 'mun',
+    'Региональный': 'reg',
+    'Заключительный': 'zakl',
+}
+
+FUZZ_TRESHOLD = 80

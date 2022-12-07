@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}: {{ question.numbers_info }}</div>
-<h3 class="card-title">{{ question.verbose_title }}</h3>
+<h3 class="card-title"><a href="{{ question.get_absolute_url }}">{{ question.verbose_title }}</a></h3>
 
     <p>{{ question.text | linebreaksbr }}</p>
     <p><div class="text-muted">{{ question.get_type_display }}:</div></p>
@@ -18,13 +18,13 @@
         {% endfor %}
         </div>
 
-        <div class="col">
-        {% for variant in question.answer_variants.1  %}
-            <div class="row">
-                <p>{{ variant }}</p>
+            <div class="col">
+            {% for variant in question.answer_variants.1  %}
+                <div class="row">
+                    <p>{{ variant }}</p>
+                </div>
+            {% endfor %}
             </div>
-        {% endfor %}
-        </div>
 
         </div>
 

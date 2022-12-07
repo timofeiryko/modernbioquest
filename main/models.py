@@ -92,7 +92,7 @@ class Section(BaseModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('section_url', kwargs={'slug': self.slug})
+        return reverse('main:section_url', kwargs={'slug': self.slug})
 
 class Topic(BaseModel):
     """To sort questions by particular topics. Every question can have multiple topics."""
@@ -113,6 +113,7 @@ class Competition(BaseModel):
 
     name = models.CharField('Олимпиада', max_length=300, default='ВсОШ', null=True)
     link = models.CharField('Ссылка', max_length=300, validators=[URLValidator()])
+    slug = models.SlugField(max_length=20, validators=[validate_slug], default='vos')
 
     class Meta:
         ordering = ['name']
@@ -121,6 +122,8 @@ class Competition(BaseModel):
 
     def __str__(self):
         return self.name
+
+Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
 
 class BaseQuestion(BasePolymorphic):
     """Abstract model to store different questions: both olympiads and just tests."""
@@ -185,8 +188,6 @@ class BaseQuestion(BasePolymorphic):
             answer_vars_rel = None
 
         return answer_vars, answer_vars_rel
-
-Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
 
 class Test(BaseModel):
     """To store tests (sets of questions)."""
@@ -256,15 +257,19 @@ class Question(BaseQuestion):
     number_9 = models.IntegerField('Номер в 9 классе', null=True, default=0)
     number_10 = models.IntegerField('Номер в 10 классе', null=True, default=0)
     number_11 = models.IntegerField('Номер в 11 классе', null=True, default=0)
+    number_others = models.IntegerField('Номер для других классов', null=True, default=0)
+    # TODO: validator, that checks that at least one of the numbers is not null or 0
 
     @property
     def number(self):
         if self.grade == 9:
             return self.number_9
-        if self.grade == 10:
+        elif self.grade == 10:
             return self.number_10
-        if self.grade == 11:
+        elif self.grade == 11:
             return self.number_11
+        else:
+            return self.number_others
 
     @property
     def numbers_info(self):
@@ -280,17 +285,38 @@ class Question(BaseQuestion):
 
     @property
     def verbose_title(self):
-        output = f'{self.competition.name}, {self.stage}, {self.year}'
+        output = f'{self.competition.name}, {self.year}'
         title  = self.title if self.title else str(self)
         output += (': ' + title)
         return output
 
     @property
     def link(self):
+
+        if self.number_11:
+            grade = 11
+            unique_number = self.number_11
+        elif self.number_10:
+            grade = 10
+            unique_number = self.number_10
+        elif self.number_9:
+            grade = 9
+            unique_number = self.number_9
+        elif self.number_others:
+            grade = self.grade
+            unique_number = self.number_others
+        else:
+            raise ValueError(f'No number for the question {self}')
+
         return generate_question_link(
-            self.competition.name, self.stage, self.year,
-            self.grade, self.number
+            self.competition.slug, self.stage, self.year,
+            grade, unique_number
         )
+
+    def get_absolute_url(self):
+        return reverse('main:question_page', kwargs={'slug': self.link})
+    
+    
 
 
     class Meta:

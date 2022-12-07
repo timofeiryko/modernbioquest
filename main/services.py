@@ -2,6 +2,94 @@
 Most of this logic is related with objects, data stuctures etc.
 The `scripts.py` is the other place where domain logic is placed (just some tools, not related with particular abstractions at all)."""
 
+from django.http import Http404
+from django.db.models import Q
+
+from .models import Question, Competition, Section
+from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
+from .configs import FUZZ_TRESHOLD
+
+from typing import List
+
+def extend_question_text(question: Question) -> str:
+    """Extends question text with its title and answer variants."""
+
+    full_text = question.text
+    if question.title:
+        full_text += ('\n' + question.title)
+
+    answer_variants = question.answer_variants()[0]
+    for answer_variant in answer_variants:
+        full_text += ('\n' + answer_variant.label + ' ' + answer_variant.text)
+
+    return full_text
+
+def filter_questions_by_query(query: str, questions):
+    """Returns questions by search query."""
+
+    # Such itertive search is inefficient, but icontains for non-english languages is not supported by sqlite
+    # In addition, fuzz search allows to perform easy not exact search
+    matching_pks = []
+    for question in questions:
+        text = extend_question_text(question)
+        # TODO Something more smart like elastic search or SpaCy
+        if fuzz_search(query, text, treshold=FUZZ_TRESHOLD):
+            matching_pks.append(question.pk)
+
+    questions = questions.filter(pk__in=matching_pks)
+
+    return questions
+
+def get_questions_by_sections(sections: List[Section]):
+    """Returns questions by their sections."""
+
+    # get all questions by their sections
+    questions = Question.objects.filter(sections__in=sections, listed=True).order_by('-id')
+
+    return questions
+
+def get_question_by_link(link: str) -> Question:
+    """Returns question by its link. Raises 404 if question doesn't exist."""
+
+    # link is defined by generate_question_link function from scripts.py
+    competition_slug, stage_slug, year, grade, number = link.split('-')
+    year, grade, number = int(year), int(grade), int(number)
+    stage = get_stage_name(stage_slug)
+
+    # to validate, that the link was parsed correctly
+    assert link == generate_question_link(competition_slug, stage, year, grade, number)
+
+    competition = Competition.objects.get(slug=competition_slug)
+
+    try:
+        questions_batch =  Question.objects.filter(
+            competition=competition,
+            stage=stage,
+            year=year,
+            grade=grade
+        )
+    except Question.DoesNotExist:
+        raise Http404('Question does not exist')
+
+    try:
+        if grade == 11:
+            question =  questions_batch.filter(number_11=number)
+        elif grade == 10:
+            question = questions_batch.filter(number_10=number)
+        elif grade == 9:
+            question = questions_batch.filter(number_9=number)
+        else:
+            question = questions_batch.filter(number_others=number)
+    except Question.DoesNotExist:
+        raise Http404('Question does not exist')
+
+    # check that the queryset has length 1
+    if len(question) == 0:
+        raise Http404('Question does not exist')
+    elif len(question) > 1:
+        raise Http404('Error in database: more than one question with the same number!')
+
+    return question
 
 
 # TODO Checking answers
