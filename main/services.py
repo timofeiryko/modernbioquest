@@ -22,6 +22,13 @@ def extend_question_text(question: Question) -> str:
     for answer_variant in answer_variants:
         full_text += ('\n' + answer_variant.label + ' ' + answer_variant.text)
 
+    full_text += ('\n' + ' '.join([section.name for section in question.sections.all()]))
+    full_text += ('\n' + ' '.join([topic.name for topic in question.topics.all()]))
+
+
+    full_text += ('\n' + question.competition.name)
+    full_text += ('\n' + question.stage)
+
     return full_text
 
 def filter_questions_by_query(query: str, questions):

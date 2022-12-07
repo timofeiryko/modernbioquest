@@ -52,8 +52,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
         page_urls[page_number] = f'?page={page_number}'
         if get_params:
             page_urls[page_number] += ('&' + get_params.urlencode())
-    print(page_urls)
-
+    
     # generate urls for pagination with get params
     if get_params:
         if prev_url:
@@ -143,7 +142,7 @@ def problems_by_section(request, slug):
     questions = get_questions_by_sections([section])
 
     h1_content = ''
-    p_content = f'Вопросы по разделу <b>{section.name}</b>'
+    p_content = f'Раздел <b>{section.name}</b>'
 
     return show_selected_questions(request, questions, h1_content, p_content)
 
@@ -175,5 +174,5 @@ def personal(request):
     context = {
         'nav': [False, False, True]
     }
-    
+
     return render(request, 'personal.html', context=context)
