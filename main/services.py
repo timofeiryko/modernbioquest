@@ -44,7 +44,7 @@ def get_questions_by_sections(sections: List[Section]):
     """Returns questions by their sections."""
 
     # get all questions by their sections
-    questions = Question.objects.filter(sections__in=sections).order_by('-id')
+    questions = Question.objects.filter(sections__in=sections, listed=True).order_by('-id')
 
     return questions
 

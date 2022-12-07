@@ -102,7 +102,7 @@ def problems(request):
         if questions:
             p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in requested_sections])}</b>'
         else:
-            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> вопросов не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
 
     elif requested_topic:
             
@@ -110,9 +110,9 @@ def problems(request):
     
             h1_content = ''
             if questions:
-                p_content = f'Вопросы по теме: <b>{requested_topic}</b>'
+                p_content = f'Вопросы по теме <b>{requested_topic}</b>'
             else:
-                p_content = f'По запрошенной теме <b>{requested_topic}</b> вопросов не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+                p_content = f'По запрошенной теме <b>{requested_topic}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
 
     else:
 

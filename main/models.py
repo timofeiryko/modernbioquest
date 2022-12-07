@@ -285,7 +285,7 @@ class Question(BaseQuestion):
 
     @property
     def verbose_title(self):
-        output = f'{self.competition.name}, {self.year}'
+        output = f'{self.competition.name} {self.year}'
         title  = self.title if self.title else str(self)
         output += (': ' + title)
         return output
