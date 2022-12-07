@@ -29,6 +29,13 @@ def about(request):
 
 def show_selected_questions(request, questions, h1_content: str, p_content: str, **kwargs):
 
+    # get dict of get params withouth page
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        get_params.pop('page')
+
+    
+
     paginator = Paginator(questions, QUESTIONS_PER_PAGE)
     page_number = request.GET.get('page', 1)
     page = paginator.get_page(page_number)
@@ -36,16 +43,24 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     is_paginated = page.has_other_pages()
     prev_url = f'?page={page.previous_page_number()}' if page.has_previous() else ''
     next_url = f'?page={page.next_page_number()}' if page.has_next() else ''
+    last_url = f'?page={page.paginator.num_pages}' if page.has_next() else ''
 
-    if page.has_previous():
-        prev_url = f'?page={page.previous_page_number()}'
-    else:
-        prev_url = ''
+    # generate dict of urls with page numbers uaing page.paginator.page_range and add get params to them
+    page_urls = {}
+    for page_number in page.paginator.page_range:
+        page_urls[page_number] = f'?page={page_number}'
+        if get_params:
+            page_urls[page_number] += ('&' + get_params.urlencode())
+    print(page_urls)
 
-    if page.has_next():
-        next_url = f'?page={page.next_page_number()}'
-    else:
-        next_url = ''
+    # generate urls for pagination with get params
+    if get_params:
+        if prev_url:
+            prev_url += ('&' + get_params.urlencode())
+        if next_url:
+            next_url += ('&' + get_params.urlencode())
+        if last_url:
+            last_url += ('&' + get_params.urlencode())
 
     sections = Section.objects.order_by('name')
 
@@ -55,9 +70,11 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
         'is_paginated': is_paginated,
         'next_url': next_url,
         'prev_url': prev_url,
+        'last_url': last_url,
         'h1_content': h1_content,
         'p_content': p_content,
-        'sections': sections
+        'sections': sections,
+        'page_urls': page_urls
     }
 
     # add kwargs to context
@@ -68,7 +85,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
 def problems(request):
 
     # extract multipe sections from the get request
-    requested_sections = request.GET.getlist('section')
+    requested_sections_slugs = request.GET.getlist('section')
 
     # extract topic from the get request
     requested_topic = request.GET.get('topic')
@@ -76,16 +93,16 @@ def problems(request):
     # extract search query from the get request
     requested_query = request.GET.get('query')
 
-    if requested_sections:
+    if requested_sections_slugs:
 
-        sections = Section.objects.filter(slug__in=requested_sections)
-        questions = get_questions_by_sections(sections)
+        requested_sections = Section.objects.filter(slug__in=requested_sections_slugs)
+        questions = get_questions_by_sections(requested_sections)
 
         h1_content = ''
         if questions:
-            p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in sections])}</b>'
+            p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in requested_sections])}</b>'
         else:
-            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in sections])}</b> вопросов не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> вопросов не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
 
     elif requested_topic:
             
@@ -110,13 +127,13 @@ def problems(request):
 
         h1_content = ''
         if questions:
-            p_content = f'Вопросы по запросу: <b>{requested_query}</b>'
+            p_content = f'Всё, что мы нашли по запросу <b>{requested_query}</b>'
         else:
             p_content = f'По запросу <b>{requested_query}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
 
     return show_selected_questions(
         request, questions, h1_content, p_content,
-        requested_sections=requested_sections, requested_topic=requested_topic
+        requested_sections_slugs=requested_sections_slugs, requested_topic=requested_topic
     )
 
 def problems_by_section(request, slug):

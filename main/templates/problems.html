@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load custom_filters %}
+
 {% block title %}Все вопросы{% endblock %}
 
 {% block header %}
@@ -88,20 +90,20 @@
             <nav aria-label="Pagination">
                 <hr class="my-0">
                 <ul class="pagination justify-content-center my-4">
-                    {% if prev_url %}<a class="page-link border-0" href="?page=1" tabindex="-1">В начало</a>{% endif %}
+                    {% if prev_url %}<a class="page-link border-0" href="{{ page_urls.1 }}" tabindex="-1">В начало</a>{% endif %}
                     <li class="page-item {% if not prev_url %} disabled {% endif %}">
                     <a class="page-link" href="{{ prev_url }}" tabindex="-1">Назад</a>
                     </li>
 
-                    {% for n in questions.paginator.page_range %}
+                    {% for n, page_url in questions.paginator.page_range|zip:page_urls.values %}
 
                         {% if questions.number == n %}
                                 <li class="page-item active">
-                                    <a class="page-link" href="?page={{ n }}">{{ n }}<span class="sr-only">(current)</span></a>
+                                    <a class="page-link" href="{{ page_url }}">{{ n }}<span class="sr-only">(current)</span></a>
                                 </li>
 
                         {% elif n > questions.number|add:-3 and n < questions.number|add:3 %}
-                            <li class="page-item"><a class="page-link" href="?page={{ n }}">{{ n }}</a></li>
+                            <li class="page-item"><a class="page-link" href="{{ page_url }}">{{ n }}</a></li>
 
                         {%endif%}
 
@@ -110,7 +112,7 @@
                     <li class="page-item {% if not next_url %} disabled {% endif %}">
                     <a class="page-link" href="{{ next_url }}" tabindex="-1">Далее</a>
                     </li>
-                    {% if next_url  %}<a class="page-link border-0" href="?page={{questions.paginator.num_pages}}" tabindex="-1">В конец</a>{% endif %}
+                    {% if next_url  %}<a class="page-link border-0" href="{{last_url}}" tabindex="-1">В конец</a>{% endif %}
                 </ul>
             </nav>
             {% endif %} 
@@ -140,7 +142,7 @@
                     <form action={% url 'main:problems' %} method="get">
                         {% for section in sections %}
                             <div class="form-check">
-                                {% if section.slug in requested_sections %}
+                                {% if section.slug in requested_sections_slugs %}
                                     <input class="form-check-input" type="checkbox" id="{{ section.slug }}" name="section" value="{{ section.slug }}" checked>
                                 {% else %}
                                     <input class="form-check-input" type="checkbox" id="{{ section.slug }}" name="section" value="{{ section.slug }}">

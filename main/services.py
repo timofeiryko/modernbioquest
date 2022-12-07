@@ -44,7 +44,7 @@ def get_questions_by_sections(sections: List[Section]):
     """Returns questions by their sections."""
 
     # get all questions by their sections
-    questions = Question.objects.filter(sections__in=sections, listed=True).order_by('-id')
+    questions = Question.objects.filter(sections__in=sections).order_by('-id')
 
     return questions
 
@@ -52,12 +52,13 @@ def get_question_by_link(link: str) -> Question:
     """Returns question by its link. Raises 404 if question doesn't exist."""
 
     # link is defined by generate_question_link function from scripts.py
-    competition_slug, stage_slug, year, grade, number = link.split('-')
-    year, grade, number = int(year), int(grade), int(number)
+    print(f'trying to get question by link: {link}')
+    competition_slug, stage_slug, year, grade, part, number = link.split('-')
+    year, grade, part, number = int(year), int(grade), int(part), int(number)
     stage = get_stage_name(stage_slug)
 
     # to validate, that the link was parsed correctly
-    assert link == generate_question_link(competition_slug, stage, year, grade, number)
+    assert link == generate_question_link(competition_slug, stage, year, grade, part, number)
 
     competition = Competition.objects.get(slug=competition_slug)
 
@@ -66,7 +67,8 @@ def get_question_by_link(link: str) -> Question:
             competition=competition,
             stage=stage,
             year=year,
-            grade=grade
+            grade=grade,
+            part=part
         )
     except Question.DoesNotExist:
         raise Http404('Question does not exist')

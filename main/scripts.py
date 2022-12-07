@@ -36,11 +36,11 @@ def get_stage_name(stage_slug: str) -> str:
 
 def generate_question_link(
     competition: str, stage: str,
-    year: int, grade: int, number: int
+    year: int, grade: int, part: int, number: int
 ) -> str:
     return '-'.join([
         competition, get_stage_slug(stage),
-        str(year), str(grade), str(number)
+        str(year), str(grade), str(part), str(number)
     ])
 
 def clean_query(query: str) -> str:
