@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% load custom_filters %}
+
+{% block title %}Все вопросы{% endblock %}
+
+{% block header %}
+<!-- Page header with logo and tagline-->
+<header class="py-1 bg-light border-bottom mb-4">
+    <div class="container">
+        <div class="text-center my-5">
+            <h1 class="fw-bolder">Наша миссия — сделать олимпиадников счастливее</h1>
+            <p class="lead mb-0">На этом сайте собраны вопросы биологических олимпиад, размеченные по разделам биологии и темам</p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+
+{% block content %}
+<!-- Page content-->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4 border-0">
+
+                <div class="card-body">
+                    <h3 class="card-title">Кто создал и поддерживает сайт?</h3>
+                    <p>Проект BioQuest не аффилирован ни с какими организациями.
+                        Давайте знакомиться: я — Тимофей Рыко, преподаватель олимпиадной биологии, и я сделал этот сайт.
+                        Надеюсь, что BioQuest поможет вам подготовиться к олимпиадам и сделает вашу жизнь немного лучше.
+                    </p>
+                    <p>Если у вас есть вопросы, предложения, благодарности, отзывы или пожелания, напишите мне в телеграм <a href="https://t.me/timofeyryko">@timofeyryko</a> или в <a href="https://vk.com/timofeiryko">ВК</a>.
+                </div>
+
+                <div class="card-body">
+                    <h3 class="card-title">Как помочь проекту?</h3>
+                    <p>Нам очень не хватает рук, чтобы добавлять вопросы и размечать их по темам, а также писать разборы. Если вы хотите помочь,
+                        добавляйтесь  в <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">чат волонтеров</a>.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Search widget-->
+            <div class="card mb-4">
+                <div class="card-header">Поиск вопросов</div>
+                <div class="card-body">
+                    <form>
+                        <div class="input-group">
+                            <input class="form-control" type="text"
+                                placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                aria-describedby="button-search" name="query"/>
+                            <button class="btn btn-primary" id="button-search" type="submit" action="problems.html">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Sections and topics widget-->
+            <div class="card mb-4">
+                <div class="card-header">Все темы и разделы</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for section in sections %}
+                        <li class="list-group-item"><a href="{{ section.get_absolute_url }}">{{ section.name }}</a>
+                            <ul class="list-group inner">
+                                {% for topic in section.topics.all %}
+                                <li class="list-group-item border-0"><a href="{% url 'main:problems' %}?topic={{ topic.name }}">{{ topic.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

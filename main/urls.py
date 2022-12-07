@@ -6,9 +6,10 @@ app_name = 'main'
 
 urlpatterns = [
     path('', views.problems, name='index'),
-    path('about/', views.problems, name='about'),
+    path('about/', views.about, name='about'),
+    path('personal/', views.personal, name='personal'),
     path('problems/', views.problems, name='problems'),
-    path('update_server/', views.update, name='update'),
     path('problems/<str:slug>', views.question_page, name='question_page'),
-    path('sections/<str:slug>', views.problems_by_section, name='section_url')
+    path('sections/<str:slug>', views.problems_by_section, name='section_url'),
+    path('update_server/', views.update, name='update')
 ]

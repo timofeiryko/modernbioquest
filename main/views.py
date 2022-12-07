@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
@@ -102,7 +103,7 @@ def problems(request):
         if questions:
             p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in requested_sections])}</b>'
         else:
-            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
     elif requested_topic:
             
@@ -112,7 +113,7 @@ def problems(request):
             if questions:
                 p_content = f'Вопросы по теме <b>{requested_topic}</b>'
             else:
-                p_content = f'По запрошенной теме <b>{requested_topic}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+                p_content = f'По запрошенной теме <b>{requested_topic}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
     else:
 
@@ -129,7 +130,7 @@ def problems(request):
         if questions:
             p_content = f'Всё, что мы нашли по запросу <b>{requested_query}</b>'
         else:
-            p_content = f'По запросу <b>{requested_query}</b> ничего не найдено :( Помогите нам с наполнением базы вопросов: <a href="mailto:timofei.ryko@gmail.com">timofei.ryko@gmail.com</a>'
+            p_content = f'По запросу <b>{requested_query}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
     return show_selected_questions(
         request, questions, h1_content, p_content,
@@ -153,3 +154,26 @@ def question_page(request, slug):
         'questions': question
     }
     return render(request, 'question_page.html', context=context)
+
+def about(request):
+
+    requested_query = request.GET.get('query')
+    if requested_query:
+        return redirect(reverse('main:problems') + f'?query={requested_query}')
+
+    sections = Section.objects.order_by('name')
+
+    context = {
+        'nav': [False, True, False],
+        'sections': sections
+        
+    }
+    return render(request, 'about.html', context=context)
+
+def personal(request):
+
+    context = {
+        'nav': [False, False, True]
+    }
+    
+    return render(request, 'personal.html', context=context)
