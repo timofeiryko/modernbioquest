@@ -25,7 +25,7 @@ class BaseModel(models.Model):
         abstract = True
 
 class BasePolymorphic(PolymorphicModel):
-    """From this model we inherit some of the models, which are a qukte abstract."""
+    """From this model we inherit some of the models, which are a quite abstract."""
 
     created_at = models.DateTimeField('Created', auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField('Modified', auto_now=True)
@@ -81,7 +81,7 @@ class Section(BaseModel):
     """To sort questions by quite big areas of knowledge. Every question can be in multiple sections."""
 
     name = models.CharField('Название раздела', max_length=100)
-    slug = models.SlugField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True, validators=[validate_slug])
 
     class Meta:
         ordering = ['name']
@@ -113,7 +113,7 @@ class Competition(BaseModel):
 
     name = models.CharField('Олимпиада', max_length=300, default='ВсОШ', null=True)
     link = models.CharField('Ссылка', max_length=300, validators=[URLValidator()])
-    slug = models.SlugField(max_length=20, validators=[validate_slug], default='vos')
+    slug = models.SlugField(max_length=50, validators=[validate_slug], default='vos')
 
     class Meta:
         ordering = ['name']
@@ -122,6 +122,21 @@ class Competition(BaseModel):
 
     def __str__(self):
         return self.name
+
+class Stage(BaseModel):
+    """To sort questions by stage of the competition."""
+
+    name = models.CharField('Этап', max_length=100)
+    slug = models.SlugField(max_length=50, validators=[validate_slug], unique=True, default='zakl')
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='stages', verbose_name='Олимпиада')
+
+    class Meta:
+        ordering = ['competition', 'name']
+        verbose_name = 'Этап'
+        verbose_name_plural = 'Этапы'
+
+    def __str__(self):
+        return f'{self.competition} - {self.name}'
 
 Variant = NamedTuple('Variant',  [('label', str), ('text', str), ('flag', bool)])
 
@@ -274,12 +289,17 @@ class Question(BaseQuestion):
     @property
     def numbers_info(self):
         output = []
+
         if self.number_9:
             output.append(f'№{ self.number_9 } (9 кл.)')
         if self.number_10:
             output.append(f'№{ self.number_10 } (10 кл.)')
         if self.number_11:
             output.append(f'№{ self.number_11 } (11 кл.)')
+
+        if self.number_others:
+            output.append(f'№{ self.number_others } ({self.grade} кл.)')
+        
 
         return ', '.join(output)
 

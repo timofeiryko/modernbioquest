@@ -2,8 +2,8 @@ from django.contrib import admin
 
 import nested_admin
 
-from .models import Competition, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
-admin.site.register([Competition, Explanation, Section, Image, Test])
+from .models import Competition, Stage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
+admin.site.register([Competition, Stage, Explanation, Section, Image, Test])
 
 @admin.register(Topic)
 class TopicAdmin(nested_admin.NestedModelAdmin):
@@ -24,9 +24,6 @@ class RightAnswerIine(admin.TabularInline):
     extra = 4
 
     def get_form(self, request, obj=None, **kwargs):
-        print('RIGHT ANSWER ARGS:')
-        print(locals())
-        print('---')
         return super().get_form(request, obj, **kwargs)
 
 
