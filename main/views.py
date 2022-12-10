@@ -81,32 +81,87 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     return render(request, 'problems.html', context=context)
 
 def advanced_filter(questions, request, requested_sections):
+    # TODO: TO SERVICES?
+
+    print('ADVANCED FILTER')
 
     p_content = ''
 
     if requested_sections is not None:
-        p_content += f'Разделы: <b>{", ".join([section.name for section in requested_sections])}</b><br>'
-    
-    requested_topics = request.GET.getlist('topic')
-    if requested_topics:
-        questions  = questions.filter(topics__name__in=requested_topics)
 
-        topics = Topic.objects.filter(name__in=requested_topics)
-        p_content += f'Темы: <b>{", ".join([topic.name for topic in topics])}</b><br>'
-    
+        requested_topics = request.GET.getlist('topic')
+        if requested_topics:
+            sections_without_topics = requested_sections.exclude(topics__name__in=requested_topics)
+            sections_with_topics = requested_sections.filter(topics__name__in=requested_topics).distinct()
+        else:
+            sections_without_topics = requested_sections
+            sections_with_topics = Section.objects.none()
+
+        if sections_without_topics:
+            p_content += f'Разделы целиком: <b>{", ".join([section.name for section in sections_without_topics])}</b><br>'
+            questions_without_topics = questions.filter(sections__in=sections_without_topics)
+
+        if requested_topics:
+
+            questions  = questions.filter(topics__name__in=requested_topics)
+            topics = Topic.objects.filter(name__in=requested_topics)
+
+            # divide questions and topics into batches by section
+            questions = [Question.objects.filter(sections__in=[section]) for section in sections_with_topics]
+            topics = [topics.filter(parent_section=section) for section in sections_with_topics]
+            new_questions = []
+
+            for section, topic_batch, question_batch in zip(sections_with_topics, topics, questions):
+                new_questions.append(question_batch.filter(topics__in=topic_batch))
+                p_content += f'<b>{section.name}</b>: {", ".join([topic.name for topic in topic_batch])}<br>'
+
+            # merge batches into one queryset
+            questions = Question.objects.none()
+            for question_batch in new_questions:
+                questions = questions | question_batch
+
+            if sections_without_topics:
+                questions = questions | questions_without_topics
+
+        
+    # TODO abstraction for similar filtering (competition + stage, section + topic)
     requested_competitions = request.GET.getlist('competition')
     if requested_competitions:
-        questions = questions.filter(competition__slug__in=requested_competitions)
+        requested_competitions = Competition.objects.filter(slug__in=requested_competitions)
 
-        competitions = Competition.objects.filter(slug__in=requested_competitions)
-        p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions])}</b><br>'
+        requested_stages = request.GET.getlist('stage')
+        if requested_stages:
+            competitions_without_stages = requested_competitions.exclude(stages__name__in=requested_stages)
+            competitions_with_stages = requested_competitions.filter(stages__name__in=requested_stages).distinct()
+        else:
+            competitions_without_stages = requested_competitions
+            competitions_with_stages = Competition.objects.none()
+        
+        if competitions_without_stages:
+            p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions_without_stages])}</b><br>'
+            questions_without_stages = questions.filter(competition__slug__in=competitions_without_stages)
+        
+        if requested_stages:
 
-    requested_stages = request.GET.getlist('stage')
-    if requested_stages:
-        questions = questions.filter(new_stage__slug__in=requested_stages)
+            questions = questions.filter(stage__name__in=requested_stages)
+            stages = NewStage.objects.filter(name__in=requested_stages)
 
-        stages = NewStage.objects.filter(slug__in=requested_stages)
-        p_content += f'Этапы: <b>{", ".join([stage.name for stage in stages])}</b><br>'
+            # divide questions and stages into batches by competition
+            questions = [Question.objects.filter(competition=competition) for competition in competitions_with_stages]
+            stages = [stages.filter(competition=competition) for competition in competitions_with_stages]
+            new_questions = []
+
+            for competition, stage_batch, question_batch in zip(competitions_with_stages, stages, questions):
+                new_questions.append(question_batch.filter(stage__in=stage_batch))
+                p_content += f'<b>{competition.name}</b>: {", ".join([stage.name for stage in stage_batch])}<br>'
+
+            # merge batches into one queryset
+            questions = Question.objects.none()
+            for question_batch in new_questions:
+                questions = questions | question_batch
+            
+            if competitions_without_stages:
+                questions = questions | questions_without_stages
 
     requested_years = request.GET.getlist('year')
     if requested_years:
