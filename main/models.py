@@ -339,7 +339,7 @@ class Question(BaseQuestion):
             raise ValueError(f'No number for the question {self}')
 
         return generate_question_link(
-            self.competition.slug, self.new_stage, self.year,
+            self.competition.slug, self.new_stage.slug, self.year,
             grade, self.part, unique_number
         )
 

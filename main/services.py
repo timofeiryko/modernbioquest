@@ -63,15 +63,16 @@ def get_question_by_link(link: str) -> Question:
     competition_slug, stage_slug, year, grade, part, number = link.split('-')
     competition = Competition.objects.get(slug=competition_slug)
     year, grade, part, number = int(year), int(grade), int(part), int(number)
+    print(stage_slug)
     stage = NewStage.objects.get(slug=stage_slug, competition=competition)
 
     # to validate, that the link was parsed correctly
-    assert link == generate_question_link(competition_slug, stage, year, grade, part, number)
+    assert link == generate_question_link(competition_slug, stage_slug, year, grade, part, number)
 
     try:
         questions_batch =  Question.objects.filter(
             competition=competition,
-            stage=stage,
+            new_stage=stage,
             year=year,
             grade=grade,
             part=part

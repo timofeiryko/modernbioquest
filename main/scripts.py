@@ -39,7 +39,7 @@ def generate_question_link(
     year: int, grade: int, part: int, number: int
 ) -> str:
     return '-'.join([
-        competition, get_stage_slug(stage),
+        competition, stage,
         str(year), str(grade), str(part), str(number)
     ])
 
