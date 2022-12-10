@@ -27,7 +27,7 @@ def extend_question_text(question: Question) -> str:
 
 
     full_text += ('\n' + question.competition.name)
-    full_text += ('\n' + question.stage)
+    full_text += ('\n' + question.new_stage.name)
 
     return full_text
 
