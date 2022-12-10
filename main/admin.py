@@ -2,8 +2,8 @@ from django.contrib import admin
 
 import nested_admin
 
-from .models import Competition, Stage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
-admin.site.register([Competition, Stage, Explanation, Section, Image, Test])
+from .models import Competition, NewStage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
+admin.site.register([Competition, NewStage, Explanation, Section, Image, Test])
 
 @admin.register(Topic)
 class TopicAdmin(nested_admin.NestedModelAdmin):
@@ -48,7 +48,7 @@ class QuestionAdmin(admin.ModelAdmin):
             formset.save()
 
     list_display = ['verbose_title', 'part', 'number']
-    list_filter = ['listed', 'competition', 'year', 'stage']
+    list_filter = ['listed', 'competition', 'year', 'new_stage']
 
 @admin.register(TestQuestion)
 class TestQuestionAdmin(admin.ModelAdmin):

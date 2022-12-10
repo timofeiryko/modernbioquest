@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@widgetjs/tree": "^1.8.3"
+  }
+}

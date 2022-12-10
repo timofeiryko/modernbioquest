@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}: {{ question.numbers_info }}</div>
+<div class="small text-muted">Этап: {{ question.new_stage.name }}. Часть {{ question.part }}: {{ question.numbers_info }}</div>
 <h3 class="card-title"><a href="{{ question.get_absolute_url }}">{{ question.verbose_title }}</a></h3>
 <div class="text-muted">Раздел:{% for section in question.sections.all %} <a href="{{section.get_absolute_url}}">{{ section.name }}</a>{% endfor %}</div>
 <div class="text-muted">Темы:{% for topic in question.topics.all %} <a href="{% url 'main:problems' %}?topic={{ topic.name }}">{{ topic.name }}</a>{% endfor %}</div>
@@ -37,7 +37,8 @@
         {% endfor %}
     
     {% endif %}
-
+    
+    <p>
     {% if question.images.images %}
     <div id="carousel-{{ question.id }}" class="carousel carousel-dark slide" data-bs-ride="carousel-{{ question.id }}" data-bs-interval="false">
         
@@ -80,12 +81,14 @@
 
     </div>
     {% endif %}
-
+    <p>
     
+    <p>
     <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#answer{{ question.id }}" aria-expanded="false" aria-controls="answer1">
         Показать ответ
     </button>
-    
+    </p>
+        
     <div class="collapse" id="answer{{ question.id }}">
         <div class="card card-body border-0">
 

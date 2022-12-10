@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 
-from .models import Question, Section
+from .models import Question, Section, Competition, NewStage, Topic
 from .configs import QUESTIONS_PER_PAGE
 from .services import get_question_by_link, get_questions_by_sections, filter_questions_by_query
 
@@ -25,8 +25,6 @@ def update(request):
     else:
         return HttpResponse("Couldn't update the code on PythonAnywhere")
 
-def about(request):
-    pass
 
 def show_selected_questions(request, questions, h1_content: str, p_content: str, **kwargs):
 
@@ -65,7 +63,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     sections = Section.objects.order_by('name')
 
     context = {
-        'nav': [True, False, False],
+        'nav': [False, True, False, False],
         'questions': page,
         'is_paginated': is_paginated,
         'next_url': next_url,
@@ -82,44 +80,106 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
 
     return render(request, 'problems.html', context=context)
 
+def advanced_filter(questions, request, requested_sections):
+
+    p_content = ''
+
+    if requested_sections is not None:
+        p_content += f'Разделы: <b>{", ".join([section.name for section in requested_sections])}</b><br>'
+    
+    requested_topics = request.GET.getlist('topic')
+    if requested_topics:
+        questions  = questions.filter(topics__name__in=requested_topics)
+
+        topics = Topic.objects.filter(name__in=requested_topics)
+        p_content += f'Темы: <b>{", ".join([topic.name for topic in topics])}</b><br>'
+    
+    requested_competitions = request.GET.getlist('competition')
+    if requested_competitions:
+        questions = questions.filter(competition__slug__in=requested_competitions)
+
+        competitions = Competition.objects.filter(slug__in=requested_competitions)
+        p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions])}</b><br>'
+
+    requested_stages = request.GET.getlist('stage')
+    if requested_stages:
+        questions = questions.filter(new_stage__slug__in=requested_stages)
+
+        stages = NewStage.objects.filter(slug__in=requested_stages)
+        p_content += f'Этапы: <b>{", ".join([stage.name for stage in stages])}</b><br>'
+
+    requested_years = request.GET.getlist('year')
+    if requested_years:
+        questions = questions.filter(year__in=requested_years)
+
+        p_content += f'Годы проведения: <b>{", ".join(requested_years)}</b><br>'
+    
+    requested_parts = request.GET.getlist('part')
+    if requested_parts:
+        questions = questions.filter(part__in=requested_parts)
+
+        p_content += f'Части: <b>{", ".join(requested_parts)}</b><br>'
+
+    if not questions:
+        h1_content = ''
+        p_content = 'Ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
+    else:
+        h1_content = 'Ваш персональный набор вопросов'
+        p_content += 'Кроме фильтров, на сайте есть поиск!'
+
+    # TODO; automatically add new fields to this filter
+
+    return questions, h1_content, p_content
+
 def problems(request):
-
-    # extract multipe sections from the get request
-    requested_sections_slugs = request.GET.getlist('section')
-
-    # extract topic from the get request
-    requested_topic = request.GET.get('topic')
 
     # extract search query from the get request
     requested_query = request.GET.get('query')
 
+    # extract multipe sections from the get request
+    requested_sections_slugs = request.GET.getlist('section')
+    requested_sections = None
     if requested_sections_slugs:
-
         requested_sections = Section.objects.filter(slug__in=requested_sections_slugs)
         questions = get_questions_by_sections(requested_sections)
-
-        h1_content = ''
-        if questions:
-            p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in requested_sections])}</b>'
-        else:
-            p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
-
-    elif requested_topic:
-            
-            questions = Question.objects.order_by('-id').filter(listed = True, topics__name__icontains=requested_topic)
-    
-            h1_content = ''
-            if questions:
-                p_content = f'Вопросы по теме <b>{requested_topic}</b>'
-            else:
-                p_content = f'По запрошенной теме <b>{requested_topic}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
-
     else:
-
         questions = Question.objects.order_by('-id').filter(listed = True)
 
-        h1_content = 'Коллекция вопросов с ответами'
-        p_content = 'Вы можете выбрать вопросы по разделам или темам в меню справа (с мобильного устройства — снизу)'
+    fitler_type = request.GET.get('filter')
+    if fitler_type:
+        if fitler_type == 'advanced':
+            questions, h1_content, p_content = advanced_filter(questions, request, requested_sections)
+        else:
+            raise NotImplementedError
+    else:
+
+        # extract topic from the get request
+        requested_topic = request.GET.get('topic')
+
+        if requested_sections_slugs:
+
+            h1_content = ''
+            if questions:
+                p_content = f'Вопросы по разделам: <b>{", ".join([section.name for section in requested_sections])}</b>'
+            else:
+                p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
+
+        elif requested_topic:
+                
+                questions = Question.objects.order_by('-id').filter(listed = True, topics__name__icontains=requested_topic)
+        
+                h1_content = ''
+                if questions:
+                    p_content = f'Вопросы по теме <b>{requested_topic}</b>'
+                else:
+                    p_content = f'По запрошенной теме <b>{requested_topic}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
+
+        else:
+
+            questions = Question.objects.order_by('-id').filter(listed = True)
+
+            h1_content = 'Коллекция вопросов с ответами'
+            p_content = 'Вы можете выбрать вопросы по разделам или темам в меню справа (с мобильного устройства — снизу)'
 
     if requested_query:
 
@@ -131,10 +191,13 @@ def problems(request):
         else:
             p_content = f'По запросу <b>{requested_query}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
-    return show_selected_questions(
-        request, questions, h1_content, p_content,
-        requested_sections_slugs=requested_sections_slugs, requested_topic=requested_topic
-    )
+    if fitler_type:
+        return show_selected_questions(request, questions, h1_content, p_content)
+    else:
+        return show_selected_questions(
+            request, questions, h1_content, p_content,
+            requested_sections_slugs=requested_sections_slugs, requested_topic=requested_topic
+        )
 
 def problems_by_section(request, slug):
 
@@ -149,7 +212,7 @@ def problems_by_section(request, slug):
 def question_page(request, slug):
     question = get_question_by_link(slug)
     context = {
-        'nav': [True, False, False],
+        'nav': [False, True, False, False],
         'questions': question
     }
     return render(request, 'question_page.html', context=context)
@@ -163,16 +226,40 @@ def about(request):
     sections = Section.objects.order_by('name')
 
     context = {
-        'nav': [False, True, False],
+        'nav': [False, False, True, False],
         'sections': sections
         
     }
     return render(request, 'about.html', context=context)
 
+def index(request):
+
+    requested_query = request.GET.get('query')
+    if requested_query:
+        return redirect(reverse('main:problems') + f'?query={requested_query}')
+
+    sections = Section.objects.order_by('name')
+    competitions = Competition.objects.order_by('-id')
+
+    # add cashing of this page, since here we query all the questions
+    quesions = Question.objects.filter(listed = True).order_by()
+    years = quesions.values_list('year', flat=True).distinct()
+    parts = quesions.values_list('part', flat=True).distinct()
+
+    context = {
+        'nav': [True, False, False, False],
+        'sections': sections,
+        'competitions': competitions,
+        'years': years,
+        'parts': parts
+        
+    }
+    return render(request, 'index.html', context=context)
+
 def personal(request):
 
     context = {
-        'nav': [False, False, True]
+        'nav': [False, False, False, True]
     }
 
     return render(request, 'personal.html', context=context)

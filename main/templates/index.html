@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% load custom_filters %}
+
+{% block title %}BioQuest{% endblock %}
+
+{% block header %}
+<!-- Page header with logo and tagline-->
+<header class="py-1 bg-light border-bottom mb-4">
+    <div class="container">
+        <div class="text-center my-5">
+            <h1 class="fw-bolder">BioQuest: вопросы олимпиад по разным темам</h1>
+            <p class="lead mb-0">На этом сайте собраны вопросы биологических олимпиад, размеченные по разделам и темам, доступны другие фильтры</p>
+        </div>
+    </div>
+
+</header>
+
+{% endblock header %}
+
+
+{% block content %}
+
+<!-- Page content-->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4 border-1">
+                
+                <div class="card-body">
+                <h2 class="card-title">Соберите свой персональный набор вопросов!</h2>
+                </div>
+
+                <form action={% url 'main:problems' %} method="get">
+                <input type="hidden" id="filter" name="filter" value="advanced">
+
+                <div class="card-body">
+                    <h5 class="card-title">Выберите темы и разделы:</h5>
+                    
+                    {% for section in sections %}
+                    <ul class="list-group">
+                        <div class="form-group">
+                            <label data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}" aria-expanded="false" aria-controls="collapse{{ section.id }}">
+                                <li class="list-group-item border-0">
+                                    <input type="checkbox" id="box{{ section.id }}" name="section" value="{{ section.slug }}"/>
+                                    <label class="form-check-label" for="box{{ section.id }}">{{ section.name }} (все темы)</label>
+                                </li>
+                            </label>
+                        </div>
+                        <ul class="list-group inner">
+                        <div id="collapse{{ section.id }}" aria-expanded="false" class="collapse">
+                            <div class="well">
+                                    {% for topic in section.topics.all %}
+                                    <li class="list-group-item border-0">
+                                        &emsp;
+                                        <input type="checkbox" id="box{{ topic.name }}" name="topic" value="{{ topic.name }}"/>
+                                        <label class="form-check-label" for="box{{ topic.name }}">{{ topic.name }}</label>
+                                    </li>
+                                    {% endfor %}
+                            </div>
+                        </div>
+                        </ul>
+                    </ul>
+                    {% endfor %}
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Выберите олимпиаду и этап:</h5>
+                    
+                    {% for competition in competitions %}
+                    <ul class="list-group">
+                        <div class="form-group">
+                            <label data-bs-toggle="collapse" data-bs-target="#collapse{{ competition.id }}" aria-controls="collapse{{ competition.id }}" aria-expanded="{% if competition.slug == 'vos' %}true{% else %}false{% endif %}">
+                                <li class="list-group-item border-0">
+                                    <input type="checkbox" id="box{{ competition.id }}" name="competition" value="{{ competition.slug }}" {% if competition.slug == 'vos' %} checked{% endif %}/>
+                                    <label class="form-check-label" for="box{{ competition.id }}">{{ competition.name }} (все этапы)</label>
+                                </li>
+                            </label>
+                        </div>
+                        <ul class="list-group inner">
+                            <div id="collapse{{ competition.id }}" class="{% if competition.slug == 'vos' %}show{% else %}collapse{% endif %}">
+                            <div class="well">
+                                    {% for stage in competition.stages.all %}
+                                    <li class="list-group-item border-0">
+                                        &emsp;
+                                        <input type="checkbox" id="box{{ stage.slug }}" name="stage" value="{{ stage.slug }}"/>
+                                        <label class="form-check-label" for="box{{ stage.slug }}">{{ stage.name }}</label>
+                                    </li>
+                                    {% endfor %}
+                            </div>
+                            </div>
+                        </ul>
+                    </ul>
+                    {% endfor %}
+
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Выберите год:</h5>
+                    
+                    {% for year in years %}
+                    <ul class="list-group">
+                        <div class="form-group">
+                                <li class="list-group-item border-0">
+                                    <input type="checkbox" id="box{{ year }}" name="year" value="{{ year }}" {% if year == 2022 %} checked{% endif %}/>
+                                    <label class="form-check-label" for="box{{ competition.id }}">{{ year }}</label>
+                                </li>
+                        </div>
+                    </ul>
+                    {% endfor %}
+
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Выберите часть:</h5>
+                    
+                    {% for part in parts %}
+                    <ul class="list-group">
+                        <div class="form-group">
+                                <li class="list-group-item border-0">
+                                    <input type="checkbox" id="box{{ part }}" name="part" value="{{ part }}" checked/>
+                                    <label class="form-check-label" for="box{{ part }}">{{ part }}</label>
+                                </li>
+                        </div>
+                    </ul>
+                    {% endfor %}
+
+                </div>
+                
+                <div class="card-body">
+                    <button class="btn btn-primary" id="button-advanced-filter" type="submit">
+                        Найти вопросы
+                    </button>
+                </div>
+
+                </form>
+
+
+            </div>
+        </div>
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Search widget-->
+            <div class="card mb-4">
+                <div class="card-header">Поиск вопросов</div>
+                <div class="card-body">
+                    <form>
+                        <div class="input-group">
+                            <input class="form-control" type="text"
+                                placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                aria-describedby="button-search" name="query"/>
+                            <button class="btn btn-primary" id="button-search" type="submit" action="problems.html">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Sections and topics widget-->
+            <div class="card mb-4">
+                <div class="card-header">Все темы и разделы</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for section in sections %}
+                        <li class="list-group-item"><a href="{{ section.get_absolute_url }}">{{ section.name }}</a>
+                            <ul class="list-group inner">
+                                {% for topic in section.topics.all %}
+                                <li class="list-group-item border-0"><a href="{% url 'main:problems' %}?topic={{ topic.name }}">{{ topic.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

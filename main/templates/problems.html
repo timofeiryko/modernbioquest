@@ -149,6 +149,7 @@
                                 {% endif %}
                                 <label class="form-check-label" for="{{ section.slug }}">
                                     <p>{{ section.name }}</p>
+                                </label>
                             </div>
                         {% endfor %}
                         <button class="btn btn-primary" id="button-filter" type="submit">
@@ -189,7 +190,7 @@
 
 
 
-<div class="small text-muted">Этап: {{ question.stage }}. Часть {{ question.part }}, №{{ question.number }}</div>
+<div class="small text-muted">Этап: {{ question.new_stage }}. Часть {{ question.part }}, №{{ question.number }}</div>
 <h3 class="card-title">{{ question.competition.name }}, {{ question.year }}</h3>
 
     <p><div class="text-muted">{{ question.get_type_display }}</div></p>

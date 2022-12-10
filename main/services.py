@@ -5,7 +5,7 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 from django.http import Http404
 from django.db.models import Q
 
-from .models import Question, Competition, Section
+from .models import Question, Competition, Section, NewStage
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
@@ -61,13 +61,12 @@ def get_question_by_link(link: str) -> Question:
     # link is defined by generate_question_link function from scripts.py
     print(f'trying to get question by link: {link}')
     competition_slug, stage_slug, year, grade, part, number = link.split('-')
+    competition = Competition.objects.get(slug=competition_slug)
     year, grade, part, number = int(year), int(grade), int(part), int(number)
-    stage = get_stage_name(stage_slug)
+    stage = NewStage.objects.get(slug=stage_slug, competition=competition)
 
     # to validate, that the link was parsed correctly
     assert link == generate_question_link(competition_slug, stage, year, grade, part, number)
-
-    competition = Competition.objects.get(slug=competition_slug)
 
     try:
         questions_batch =  Question.objects.filter(

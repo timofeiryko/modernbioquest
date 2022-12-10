@@ -81,7 +81,7 @@ class Section(BaseModel):
     """To sort questions by quite big areas of knowledge. Every question can be in multiple sections."""
 
     name = models.CharField('Название раздела', max_length=100)
-    slug = models.SlugField(max_length=100, unique=True, validators=[validate_slug])
+    slug = models.SlugField(max_length=100, validators=[validate_slug])
 
     class Meta:
         ordering = ['name']
@@ -123,12 +123,16 @@ class Competition(BaseModel):
     def __str__(self):
         return self.name
 
-class Stage(BaseModel):
+class NewStage(BaseModel):
     """To sort questions by stage of the competition."""
 
-    name = models.CharField('Этап', max_length=100)
-    slug = models.SlugField(max_length=50, validators=[validate_slug], unique=True, default='zakl')
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='stages', verbose_name='Олимпиада')
+    name = models.CharField('Этап', max_length=100, default='Заключительный')
+    slug = models.SlugField(max_length=50, validators=[validate_slug], default='zakl')
+
+    competition = models.ForeignKey(
+        Competition, on_delete=models.CASCADE, related_name='stages',
+        verbose_name='Олимпиада', default=Competition.objects.get(slug='vos').id
+    )
 
     class Meta:
         ordering = ['competition', 'name']
@@ -261,10 +265,16 @@ class Question(BaseQuestion):
         related_name='questions', verbose_name=Competition._meta.verbose_name.title()
     )
 
+    new_stage = models.ForeignKey(
+        NewStage, on_delete=models.CASCADE, null=True,
+        related_name='questions', verbose_name=NewStage._meta.verbose_name.title(),
+        default=1
+    )
+
     year = models.IntegerField('Год проведения', null=True)
-    stage = models.CharField('Этап', max_length=100, null=True)
+
     # This field is kind of depricated: it is no longer used in views to get grade information
-    # However, we keep it just in case (it says for which grade the question was originally uploaded)
+    # However, we keep it for other purposes (it says for which grade the question was originally uploaded)
     grade = models.IntegerField('Класс', null=True)
 
     part = models.CharField('Часть', max_length=100, null=True)
@@ -329,7 +339,7 @@ class Question(BaseQuestion):
             raise ValueError(f'No number for the question {self}')
 
         return generate_question_link(
-            self.competition.slug, self.stage, self.year,
+            self.competition.slug, self.new_stage, self.year,
             grade, self.part, unique_number
         )
 
