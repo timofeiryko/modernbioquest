@@ -131,20 +131,20 @@ def advanced_filter(questions, request, requested_sections):
 
         requested_stages = request.GET.getlist('stage')
         if requested_stages:
-            competitions_without_stages = requested_competitions.exclude(stages__name__in=requested_stages)
-            competitions_with_stages = requested_competitions.filter(stages__name__in=requested_stages).distinct()
+            competitions_without_stages = requested_competitions.exclude(stages__slug__in=requested_stages)
+            competitions_with_stages = requested_competitions.filter(stages__slug__in=requested_stages).distinct()
         else:
             competitions_without_stages = requested_competitions
             competitions_with_stages = Competition.objects.none()
-        
+
         if competitions_without_stages:
             p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions_without_stages])}</b><br>'
             questions_without_stages = questions.filter(competition__slug__in=competitions_without_stages)
         
         if requested_stages:
 
-            questions = questions.filter(stage__name__in=requested_stages)
-            stages = NewStage.objects.filter(name__in=requested_stages)
+            questions = questions.filter(new_stage__slug__in=requested_stages)
+            stages = NewStage.objects.filter(slug__in=requested_stages)
 
             # divide questions and stages into batches by competition
             questions = [Question.objects.filter(competition=competition) for competition in competitions_with_stages]
@@ -152,7 +152,7 @@ def advanced_filter(questions, request, requested_sections):
             new_questions = []
 
             for competition, stage_batch, question_batch in zip(competitions_with_stages, stages, questions):
-                new_questions.append(question_batch.filter(stage__in=stage_batch))
+                new_questions.append(question_batch.filter(new_stage__in=stage_batch))
                 p_content += f'<b>{competition.name}</b>: {", ".join([stage.name for stage in stage_batch])}<br>'
 
             # merge batches into one queryset
