@@ -7,6 +7,7 @@ pdfparsing/*
 *.pyc
 __pycache__
 db.sqlite3
+old_db.sqlite3
 media
 
 # Backup files # 

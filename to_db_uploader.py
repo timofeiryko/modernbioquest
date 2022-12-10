@@ -38,7 +38,10 @@ def get_type_2022(part: int) -> str:
     elif part == 5:
         return 'STR'
 
-def load_data(FILENAME):
+def load_data(FILENAME, custom_logging=None):
+
+    if custom_logging:
+        logging = custom_logging
     
     logging.info('LOADING DATA FROM PICKLE...')
 
