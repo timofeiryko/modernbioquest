@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 
+from django_registration.backends.one_step.views import RegistrationView
+
 from .models import Question, Section, Competition, NewStage, Topic
 from .configs import QUESTIONS_PER_PAGE
 from .services import get_question_by_link, get_questions_by_sections, filter_questions_by_query
@@ -318,3 +320,6 @@ def personal(request):
     }
 
     return render(request, 'personal.html', context=context)
+
+def django_registration_complete(request):
+    return redirect(reverse('main:personal'))

@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django_registration.backends.one_step.views import RegistrationView
 from . import views
 
 app_name = 'main'   
@@ -13,5 +14,7 @@ urlpatterns = [
     path('sections/<str:slug>', views.problems_by_section, name='section_url'),
     path('update_server/', views.update, name='update'),
     # auth
-    path('accounts/', include('django.contrib.auth.urls'))
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/register/', RegistrationView.as_view(success_url='/personal'), name='django_registration_register'),
+    path('accounts/', include('django_registration.backends.one_step.urls'))
 ]
