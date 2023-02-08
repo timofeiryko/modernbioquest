@@ -5,18 +5,18 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 from django.http import Http404
 from django.db.models import Q
 
-from .models import Question, Competition, Section, NewStage
+from .models import Question, Competition, Section, Topic, NewStage
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
 from typing import List
 
 def extend_question_text(question: Question) -> str:
-    """Extends question text with its title and answer variants."""
+    """Extends question text with its title, answer variants, scetions and topics."""
 
     full_text = question.text
-    if question.title:
-        full_text += ('\n' + question.title)
+    
+    full_text += question.verbose_title
 
     answer_variants = question.answer_variants()[0]
     for answer_variant in answer_variants:
@@ -25,25 +25,33 @@ def extend_question_text(question: Question) -> str:
     full_text += ('\n' + ' '.join([section.name for section in question.sections.all()]))
     full_text += ('\n' + ' '.join([topic.name for topic in question.topics.all()]))
 
-
-    full_text += ('\n' + question.competition.name)
-    full_text += ('\n' + question.new_stage.name)
-
     return full_text
 
 def filter_questions_by_query(query: str, questions):
     """Returns questions by search query."""
 
-    # Such itertive search is inefficient, but icontains for non-english languages is not supported by sqlite
-    # In addition, fuzz search allows to perform easy not exact search
-    matching_pks = []
-    for question in questions:
-        text = extend_question_text(question)
-        # TODO Something more smart like elastic search or SpaCy
-        if fuzz_search(query, text, treshold=FUZZ_TRESHOLD):
-            matching_pks.append(question.pk)
+    # Check if query is a section name
+    section = Section.objects.filter(name=query).first()
+    if section:
+        questions = get_questions_by_sections([section])
+    
+    # Check if query is a topic name
+    topic = Topic.objects.filter(name=query).first()
+    if topic:
+        questions = Question.objects.order_by('-id').filter(listed = True, topics__name__icontains=topic.name)
 
-    questions = questions.filter(pk__in=matching_pks)
+    if not (section or topic):
+
+        # Such itertive search is inefficient, but icontains for non-english languages is not supported by sqlite
+        # In addition, fuzz search allows to perform easy not exact search
+        matching_pks = []
+        for question in questions:
+            text = extend_question_text(question)
+            # TODO Something more smart like elastic search or SpaCy
+            if fuzz_search(query, text, treshold=FUZZ_TRESHOLD):
+                matching_pks.append(question.pk)
+
+        questions = questions.filter(pk__in=matching_pks)
 
     return questions
 
@@ -59,11 +67,9 @@ def get_question_by_link(link: str) -> Question:
     """Returns question by its link. Raises 404 if question doesn't exist."""
 
     # link is defined by generate_question_link function from scripts.py
-    print(f'trying to get question by link: {link}')
     competition_slug, stage_slug, year, grade, part, number = link.split('-')
     competition = Competition.objects.get(slug=competition_slug)
     year, grade, part, number = int(year), int(grade), int(part), int(number)
-    print(stage_slug)
     stage = NewStage.objects.get(slug=stage_slug, competition=competition)
 
     # to validate, that the link was parsed correctly

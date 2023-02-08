@@ -58,7 +58,7 @@
         {% for image in question.images.images.all %}
             {% if forloop.counter0 == 0 %}
                 <div class="carousel-item active">
-                <img src="{{ image.file.url }}" class="d-block w-100" alt="{{ question.images }}">
+                <img src="{{ image.file.url }}" class="d-block w-100" alt="{{ question.images }}  style="height: 200px; object-fit: cover;">
                 </div>
             {% else %}
                 <div class="carousel-item">

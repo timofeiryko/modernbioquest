@@ -27,6 +27,27 @@
             </div>
             {% endfor %} 
         </div>
+
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Search widget-->
+            <div class="card mb-4">
+                <div class="card-header">Поиск вопросов</div>
+                <div class="card-body">
+                    <form>
+                        <div class="input-group">
+                            <input class="form-control" type="text"
+                                placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                aria-describedby="button-search" name="query"/>
+                            <button class="btn btn-primary" id="button-search" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
 {% endblock content %}

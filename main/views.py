@@ -35,8 +35,6 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     if 'page' in get_params:
         get_params.pop('page')
 
-    
-
     paginator = Paginator(questions, QUESTIONS_PER_PAGE)
     page_number = request.GET.get('page', 1)
     page = paginator.get_page(page_number)
@@ -85,8 +83,6 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
 def advanced_filter(questions, request, requested_sections):
     # TODO: TO SERVICES?
 
-    print('ADVANCED FILTER')
-
     p_content = ''
 
     if requested_sections is not None:
@@ -109,7 +105,7 @@ def advanced_filter(questions, request, requested_sections):
             topics = Topic.objects.filter(name__in=requested_topics)
 
             # divide questions and topics into batches by section
-            questions = [Question.objects.filter(sections__in=[section]) for section in sections_with_topics]
+            questions = [questions.filter(sections__in=[section]) for section in sections_with_topics]
             topics = [topics.filter(parent_section=section) for section in sections_with_topics]
             new_questions = []
 
@@ -186,7 +182,8 @@ def advanced_filter(questions, request, requested_sections):
 
     # TODO; automatically add new fields to this filter
 
-    return questions, h1_content, p_content
+    # additional listed filtration as a quick fix (actually there is some bug above)
+    return questions.filter(listed=True), h1_content, p_content
 
 def problems(request):
 
@@ -200,7 +197,7 @@ def problems(request):
         requested_sections = Section.objects.filter(slug__in=requested_sections_slugs)
         questions = get_questions_by_sections(requested_sections)
     else:
-        questions = Question.objects.order_by('-id').filter(listed = True)
+        questions = Question.objects.order_by('-id').filter(listed=True)
 
     fitler_type = request.GET.get('filter')
     if fitler_type:
@@ -222,7 +219,7 @@ def problems(request):
                 p_content = f'По запрошенным разделам <b>{", ".join([section.name for section in requested_sections])}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
         elif requested_topic:
-                
+                # TODO: DRY - this code is the same in filter by query service
                 questions = Question.objects.order_by('-id').filter(listed = True, topics__name__icontains=requested_topic)
         
                 h1_content = ''
@@ -258,6 +255,11 @@ def problems(request):
 
 def problems_by_section(request, slug):
 
+    # Check if there are any get parameters in the request
+    params = request.GET
+    if params:
+        return redirect(reverse('main:problems') + f'?{params.urlencode()}')
+
     section = Section.objects.get(slug=slug)
     questions = get_questions_by_sections([section])
 
@@ -267,6 +269,11 @@ def problems_by_section(request, slug):
     return show_selected_questions(request, questions, h1_content, p_content)
 
 def question_page(request, slug):
+
+    query = request.GET.get('query')
+    if query:
+        return redirect(reverse('main:problems') + f'?query={query}')
+
     question = get_question_by_link(slug)
     context = {
         'nav': [False, True, False, False],
