@@ -12,6 +12,8 @@ from .services import get_question_by_link, get_questions_by_sections, filter_qu
 
 import git
 
+NOT_LOGGED_IN_MESSAGE = '<br><b><a href="#">Войдите</a> или <a href="#">зарегистрируйтесь</a></b>, чтобы сохранять вопросы и получить доступ к дополнительным возможностям!'
+
 @csrf_exempt
 def update(request):
     if request.method == 'POST':
@@ -245,6 +247,9 @@ def problems(request):
         else:
             p_content = f'По запросу <b>{requested_query}</b> ничего не найдено :( <a href="https://vk.me/join/p/R7YSQ1Hda3q0dE5Dn6qOmFVvSveP7WRTE=">Помогите нам с наполнением базы вопросов!</a>'
 
+    if not request.user.is_authenticated:
+        p_content += NOT_LOGGED_IN_MESSAGE
+
     if fitler_type:
         return show_selected_questions(request, questions, h1_content, p_content)
     else:
@@ -265,6 +270,9 @@ def problems_by_section(request, slug):
 
     h1_content = ''
     p_content = f'Раздел <b>{section.name}</b>'
+
+    if not request.user.is_authenticated:
+        p_content += NOT_LOGGED_IN_MESSAGE
 
     return show_selected_questions(request, questions, h1_content, p_content)
 
@@ -310,14 +318,19 @@ def index(request):
     years = quesions.values_list('year', flat=True).distinct()
     parts = quesions.values_list('part', flat=True).distinct()
 
+    p_content = 'На этом сайте собраны вопросы биологических олимпиад, размеченные по разделам и темам, доступны другие фильтры'
+    if not request.user.is_authenticated:
+        p_content += NOT_LOGGED_IN_MESSAGE
+
     context = {
         'nav': [True, False, False, False],
         'sections': sections,
         'competitions': competitions,
         'years': years,
-        'parts': parts
-        
+        'parts': parts,
+        'p_content': p_content
     }
+
     return render(request, 'index.html', context=context)
 
 def personal(request):
