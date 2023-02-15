@@ -3,13 +3,13 @@ Most of this logic is related with objects, data stuctures etc.
 The `scripts.py` is the other place where domain logic is placed (just some tools, not related with particular abstractions at all)."""
 
 from django.http import Http404
-from django.db.models import Q
+from django.db.models.query import QuerySet
 
 from .models import Question, Competition, Section, Topic, NewStage
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
-from typing import List
+from typing import List, Tuple, Optional
 
 def extend_question_text(question: Question) -> str:
     """Extends question text with its title, answer variants, scetions and topics."""
@@ -105,6 +105,111 @@ def get_question_by_link(link: str) -> Question:
         raise Http404('Error in database: more than one question with the same number!')
 
     return question
+
+def advanced_filter_service(
+        questions: QuerySet,
+        requested_topics: Optional[List[str]],
+        requested_sections: Optional[List[str]],
+
+        requested_competitions: Optional[List[str]],
+        requested_stages: Optional[List[str]],
+
+        requested_years: Optional[List[str]],
+        requested_parts: Optional[List[str]]
+        # requested_grades: Optional[List[str]]
+) -> Tuple[QuerySet, str]:
+    """Returns questions, filtered by all requested parameters."""
+
+    p_content = ''
+
+    if requested_sections is not None:
+        
+        if requested_topics:
+            sections_without_topics = requested_sections.exclude(topics__name__in=requested_topics)
+            sections_with_topics = requested_sections.filter(topics__name__in=requested_topics).distinct()
+        else:
+            sections_without_topics = requested_sections
+            sections_with_topics = Section.objects.none()
+
+        if sections_without_topics:
+            p_content += f'Разделы целиком: <b>{", ".join([section.name for section in sections_without_topics])}</b><br>'
+            questions_without_topics = questions.filter(sections__in=sections_without_topics)
+
+        if requested_topics:
+
+            questions  = questions.filter(topics__name__in=requested_topics)
+            topics = Topic.objects.filter(name__in=requested_topics)
+
+            # divide questions and topics into batches by section
+            questions = [questions.filter(sections__in=[section]) for section in sections_with_topics]
+            topics = [topics.filter(parent_section=section) for section in sections_with_topics]
+            new_questions = []
+
+            for section, topic_batch, question_batch in zip(sections_with_topics, topics, questions):
+                new_questions.append(question_batch.filter(topics__in=topic_batch))
+                p_content += f'<b>{section.name}</b>: {", ".join([topic.name for topic in topic_batch])}<br>'
+
+            # merge batches into one queryset
+            questions = Question.objects.none()
+            for question_batch in new_questions:
+                questions = questions | question_batch
+
+            if sections_without_topics:
+                questions = questions | questions_without_topics
+
+        
+    # TODO abstraction for similar filtering (competition + stage, section + topic)
+
+    if requested_competitions:
+        requested_competitions = Competition.objects.filter(slug__in=requested_competitions)
+
+        if requested_stages:
+            competitions_without_stages = requested_competitions.exclude(stages__slug__in=requested_stages)
+            competitions_with_stages = requested_competitions.filter(stages__slug__in=requested_stages).distinct()
+        else:
+            competitions_without_stages = requested_competitions
+            competitions_with_stages = Competition.objects.none()
+
+        if competitions_without_stages:
+            p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions_without_stages])}</b><br>'
+            questions_without_stages = questions.filter(competition__slug__in=competitions_without_stages)
+            print(len(questions_without_stages))
+        
+        if requested_stages:
+
+            questions = questions.filter(new_stage__slug__in=requested_stages)
+            stages = NewStage.objects.filter(slug__in=requested_stages)
+
+            # divide questions and stages into batches by competition
+            questions = [Question.objects.filter(competition=competition) for competition in competitions_with_stages]
+            stages = [stages.filter(competition=competition) for competition in competitions_with_stages]
+            new_questions = []
+
+            for competition, stage_batch, question_batch in zip(competitions_with_stages, stages, questions):
+                new_questions.append(question_batch.filter(new_stage__in=stage_batch))
+                p_content += f'<b>{competition.name}</b>: {", ".join([stage.name for stage in stage_batch])}<br>'
+
+            # merge batches into one queryset
+            questions = Question.objects.none()
+            for question_batch in new_questions:
+                questions = questions | question_batch
+            
+            if competitions_without_stages:
+                questions = questions | questions_without_stages
+
+        else:
+            questions = questions_without_stages
+
+
+    if requested_years:
+        questions = questions.filter(year__in=requested_years)
+        p_content += f'Годы проведения: <b>{", ".join(requested_years)}</b><br>'
+    
+    if requested_parts:
+        questions = questions.filter(part__in=requested_parts)
+        p_content += f'Части: <b>{", ".join(requested_parts)}</b><br>'
+
+    return questions, p_content
 
 
 # TODO Checking answers
