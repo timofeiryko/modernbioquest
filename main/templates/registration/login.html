@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}Регистрация на БиоКвесте{% endblock %}
+{% block title %}Вход{% endblock %}
 
 {% block header %}
 <header class="py-1 bg-light border-bottom mb-4">
     <div class="container">
         <div class="text-center my-5">
-            <h1 class="fw-bolder">Регистрация на БиоКвесте</h1>
-            <p class="lead mb-0">
-              <a href="{% url 'main:login' %}">Войдите</a>, если у вас уже есть аккаунт
+            <h1 class="fw-bolder">Вход в личный кабинет</h1>
+            <p class="lead mb-0"> 
+              <a href="{% url 'main:django_registration_register' %}">Зарегистрируйтесь</a>, если у вас ещё нет аккаунта
             </p>
+          
         </div>
     </div>
 </header>
@@ -39,7 +40,7 @@
                     {% endfor %}
                   </p>
                 {% endfor %}
-                <button type="submit" class="btn btn-primary" >Зарегистрироваться</button>
+                <button type="submit" class="btn btn-primary" >Войти</button>
               </form> 
         </div>
     </div>

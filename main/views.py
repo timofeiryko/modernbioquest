@@ -244,10 +244,10 @@ def index(request):
     sections = Section.objects.order_by('name')
     competitions = Competition.objects.order_by('-id')
 
-    # add cashing of this page, since here we query all the questions
+    # TODO: add cashing of this page, since here we query all the questions
     quesions = Question.objects.filter(listed = True).order_by()
-    years = quesions.values_list('year', flat=True).distinct()
-    parts = quesions.values_list('part', flat=True).distinct()
+    years = quesions.values_list('year', flat=True).distinct().order_by('-year')
+    parts = quesions.values_list('part', flat=True).distinct().order_by('part')
 
     p_content = 'На этом сайте собраны вопросы биологических олимпиад, размеченные по разделам и темам, доступны другие фильтры'
     if not request.user.is_authenticated:
@@ -265,6 +265,9 @@ def index(request):
     return render(request, 'index.html', context=context)
 
 def personal(request):
+
+    if not request.user.is_authenticated:
+        return redirect(reverse('main:login'))
 
     context = {
         'nav': [False, False, False, True]
