@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load custom_filters %}
-{% load cache %}
 {% load static %}
 
 {% block title %}БиоКвест{% endblock %}
@@ -40,7 +39,6 @@
                 <h2 class="card-title">Соберите свой персональный набор вопросов!</h2>
                 </div>
                 
-                {% cache 30 index %}
                 <form action={% url 'main:problems' %} method="get">
                 <input type="hidden" id="filter" name="filter" value="advanced">
 
@@ -144,7 +142,6 @@
                 </div>
 
                 </form>
-                {% endcache %}
 
 
             </div>
