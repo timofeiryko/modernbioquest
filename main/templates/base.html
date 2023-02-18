@@ -17,9 +17,18 @@
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
         <!-- Font Awesome icons-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- For VK widgets-->
+        <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
 
     </head>
     <body>
+
+        <script type="text/javascript">
+            VK.init({
+              apiId: 1bde747e1bde747e1bde747eee18cccd4911bde1bde747e782f74e5f908af079a521867,
+              onlyWidgets: true
+            });
+        </script>
 
         {% block navbar %}
         <!-- Responsive navbar-->
