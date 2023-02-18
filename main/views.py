@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page
 from django.core.paginator import Paginator
 
 from django_registration.backends.one_step.views import RegistrationView
@@ -227,6 +228,7 @@ def about(request):
     }
     return render(request, 'about.html', context=context)
 
+@cache_page(600)
 def index(request):
 
     requested_query = request.GET.get('query')
