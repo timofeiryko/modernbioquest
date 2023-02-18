@@ -33,6 +33,9 @@
                 </div>
                 <div class="card-body">
                     <h4 class="card-title">Обсуждение</h4>
+                    {% if not user.is_authenticated %}
+                        <b><a href="{% url 'main:login' %}">Войдите</a> или <a href="{% url 'main:django_registration_register' %}">зарегистрируйтесь</a>, чтобы просматривать и оставлять комментарии!</b>
+                    {% else %}
                     <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
                     <script type="text/javascript">
                         VK.init({
@@ -44,6 +47,7 @@
                     <script type="text/javascript">
                       VK.Widgets.Comments('vk_comments');
                     </script>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %} 
