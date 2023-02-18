@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 from django.core.paginator import Paginator
 
 from django_registration.backends.one_step.views import RegistrationView
@@ -79,7 +80,12 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     # add kwargs to context
     context.update(kwargs)
 
-    return render(request, 'problems.html', context=context)
+    response = render(request, 'problems.html', context=context)
+    # cash response page if there is no get params
+    if not request.GET:
+        cache.set('problems', response, 60 * 10)
+    
+    return response
 
 def advanced_filter(questions, request, requested_sections):
     # TODO: TO SERVICES?
@@ -118,12 +124,19 @@ def advanced_filter(questions, request, requested_sections):
 
 def problems(request):
 
+    # check if there is no get params
+    if not request.GET:
+        # check if page is in cache
+        if cache.has_key('problems'):
+            return cache.get('problems')
+
     # extract search query from the get request
     requested_query = request.GET.get('query')
 
     # extract multipe sections from the get request
     requested_sections_slugs = request.GET.getlist('section')
     requested_sections = None
+
     if requested_sections_slugs:
         requested_sections = Section.objects.filter(slug__in=requested_sections_slugs)
         questions = get_questions_by_sections(requested_sections)
@@ -228,7 +241,7 @@ def about(request):
     }
     return render(request, 'about.html', context=context)
 
-@cache_page(600)
+@cache_page(60 * 10)
 def index(request):
 
     requested_query = request.GET.get('query')
@@ -238,7 +251,6 @@ def index(request):
     sections = Section.objects.order_by('name')
     competitions = Competition.objects.order_by('-id')
 
-    # TODO: add cashing of this page, since here we query all the questions
     quesions = Question.objects.filter(listed = True).order_by()
     years = quesions.values_list('year', flat=True).distinct().order_by('-year')
     parts = quesions.values_list('part', flat=True).distinct().order_by('part')
