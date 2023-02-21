@@ -110,6 +110,8 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
 def advanced_filter(questions, request, requested_sections):
     # TODO: TO SERVICES?
 
+    print('advanced_filter')
+
     requested_topics = request.GET.getlist('topic')
 
     requested_competitions = request.GET.getlist('competition')
@@ -143,6 +145,8 @@ def advanced_filter(questions, request, requested_sections):
     return questions, h1_content, p_content
 
 def problems(request):
+
+    print('problems view')
 
     # check if there is no get params
     if not request.GET and not request.user.is_authenticated:

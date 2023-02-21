@@ -48,7 +48,7 @@
                     {% for section in sections %}
                     <ul class="list-group">
                         <div class="form-group">
-                            <label data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}" aria-expanded="false" aria-controls="collapse{{ section.id }}">
+                            <label data-bs-toggle="collapse" data-bs-target="#collapse_section{{ section.id }}" aria-expanded="false" aria-controls="collapse_section{{ section.id }}">
                                 <li class="list-group-item border-0">
                                     <input type="checkbox" id="box{{ section.id }}" name="section" value="{{ section.slug }}"/>
                                     <label class="form-check-label" for="box{{ section.id }}">{{ section.name }} (все темы)</label>
@@ -56,7 +56,7 @@
                             </label>
                         </div>
                         <ul class="list-group inner">
-                        <div id="collapse{{ section.id }}" aria-expanded="false" class="collapse">
+                        <div id="collapse_section{{ section.id }}" aria-expanded="false" class="collapse">
                             <div class="well">
                                     {% for topic in section.topics.all %}
                                     <li class="list-group-item border-0">
@@ -78,7 +78,7 @@
                     {% for competition in competitions %}
                     <ul class="list-group">
                         <div class="form-group">
-                            <label data-bs-toggle="collapse" data-bs-target="#collapse{{ competition.id }}" aria-controls="collapse{{ competition.id }}" aria-expanded="{% if competition.slug == 'vos' %}true{% else %}false{% endif %}">
+                            <label data-bs-toggle="collapse" data-bs-target="#collapse_competition{{ competition.id }}" aria-controls="collapse_competition{{ competition.id }}" aria-expanded="{% if competition.slug == 'vos' %}true{% else %}false{% endif %}">
                                 <li class="list-group-item border-0">
                                     <input type="checkbox" id="box{{ competition.id }}" name="competition" value="{{ competition.slug }}" {% if competition.slug == 'vos' %} checked{% endif %}/>
                                     <label class="form-check-label" for="box{{ competition.id }}">{{ competition.name }} (все этапы)</label>
@@ -86,7 +86,7 @@
                             </label>
                         </div>
                         <ul class="list-group inner">
-                            <div id="collapse{{ competition.id }}" class="{% if competition.slug == 'vos' %}show{% else %}collapse{% endif %}">
+                            <div id="collapse_competition{{ competition.id }}" class="{% if competition.slug == 'vos' %}show{% else %}collapse{% endif %}">
                             <div class="well">
                                     {% for stage in competition.stages.all %}
                                     <li class="list-group-item border-0">
