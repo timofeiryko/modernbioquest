@@ -1,4 +1,21 @@
 {% load static %}
+{% load custom_filters %}
+
+{% if user.is_authenticated %}
+<a href="#" class="bookmark-btn float-end" style="text-decoration: none" onclick="toggleBookmark(this, {{ question.id }}); event.preventDefault();">
+    <div class="d-flex align-items-center">
+        <span class="ms-2" style="line-height: 40px; padding-right: 5px;">Сохранить</span>
+        <i class="fa {% if question|is_saved_by_user:user %}fa-bookmark{% else %}fa-bookmark-o{% endif %} fa-2x"></i>
+    </div>
+</a>
+{% else %}
+<a href="{% url 'main:login' %}" class="bookmark-btn float-end" style="text-decoration: none">
+    <div class="d-flex align-items-center">
+        <span class="ms-2" style="line-height: 40px; padding-right: 5px;">Сохранить</span>
+        <i class="fa {% if question|is_saved_by_user:user %}fa-bookmark{% else %}fa-bookmark-o{% endif %} fa-2x"></i>
+    </div>
+</a>
+{% endif %}
 
 <div class="small text-muted">Этап: {{ question.new_stage.name }}. Часть {{ question.part }}: {{ question.numbers_info }}</div>
 <h3 class="card-title"><a href="{{ question.get_absolute_url }}">{{ question.verbose_title }}</a></h3>

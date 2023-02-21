@@ -16,5 +16,8 @@ urlpatterns = [
     # auth
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', RegistrationView.as_view(success_url='/accounts/profile/'), name='django_registration_register'),
-    path('accounts/', include('django_registration.backends.one_step.urls'))
+    path('accounts/', include('django_registration.backends.one_step.urls')),
+    # ajax: save and unsave question
+    path('save_question/<int:question_id>/', views.save_question, name='save_question'),
+    path('unsave_question/<int:question_id>/', views.unsave_question, name='unsave_question')
 ]

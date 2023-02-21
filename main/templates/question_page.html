@@ -33,6 +33,7 @@
                 </div>
                 <div class="card-body">
                     <h4 class="card-title">Обсуждение</h4>
+                    <br>
                     {% if not user.is_authenticated %}
                         <b><a href="{% url 'main:login' %}">Войдите</a> или <a href="{% url 'main:django_registration_register' %}">зарегистрируйтесь</a>, чтобы просматривать и оставлять комментарии!</b>
                     {% else %}

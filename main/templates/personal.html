@@ -10,9 +10,54 @@
 <header class="py-1 bg-light border-bottom mb-4">
     <div class="container">
         <div class="text-center my-5">
-            <h1 class="fw-bolder">Страница пока не готова!</h1>
-            <p class="lead mb-0">В личном кабинете для зарегистрированных пользователей будет доступна автоматическая проверка вопросов и персонализированная статистика</p>
+            <h1 class="fw-bolder">Добро пожаловать, {{ user }}</h1>
+            <p class="lead mb-0">Тут отображаются сохранённые вопросы, а в будущем будет много крутых функций</p>
         </div>
     </div>
 </header>
 {% endblock header %}
+
+{% block content %}
+
+{% include "questions_display.html" %}
+
+{% if request.GET.query and not questions %}
+    <div class="col-lg-8">
+        <div class="alert alert-warning" role="alert">
+            По вашему запросу в личном кабинете ничего не найдено...
+            <br>
+            <a href="{% url 'main:personal' %}" class="alert-link">Показать все сохранённые вопросы</a>
+        </div>
+    </div>
+{% endif %}
+
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Search widget-->
+            <div class="card mb-4">
+                <div class="card-header">Поиск в личном кабинете</div>
+                <div class="card-body">
+                    <form>
+                        {% if not request.GET.query %}
+                            <div class="input-group">
+                                <input class="form-control" type="text"
+                                    placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                    aria-describedby="button-search" name="query"/>
+                                <button class="btn btn-primary" id="button-search" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                        {% else %}
+                            <div class="input-group">
+                                <input class="form-control" type="text"
+                                    value="{{ request.GET.query }}" placeholder="Тема или ключевое слово..."
+                                    aria-describedby="button-search" name="query"/>
+                                <button class="btn btn-primary" id="button-search" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                        {% endif %}
+                    </form>
+                    </div>
+                </div>
+            </div>
+
+{% endblock content %}

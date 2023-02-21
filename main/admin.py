@@ -2,8 +2,8 @@ from django.contrib import admin
 
 import nested_admin
 
-from .models import Competition, NewStage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test
-admin.site.register([Competition, NewStage, Explanation, Section, Image, Test])
+from .models import Competition, NewStage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test, Profile
+admin.site.register([Competition, NewStage, Explanation, Section, Image, Test, Profile])
 
 @admin.register(Topic)
 class TopicAdmin(nested_admin.NestedModelAdmin):

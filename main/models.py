@@ -33,8 +33,20 @@ class BasePolymorphic(PolymorphicModel):
     class Meta:
         abstract = True
 
-class Profile(BaseModel):
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Profile(BasePolymorphic):
+    """To have an ability to add additional fields to the User model"""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name='Пользователь')
+    
+    saved_questions = models.ManyToManyField('BaseQuestion', related_name='saved_by', verbose_name='Сохраненные вопросы', blank=True)
+
+    def __str__(self):
+        return f'{self.user.username}'
+
+    class Meta:
+        verbose_name = 'Профиль'
+        verbose_name_plural = 'Профили'
+        ordering = ['-id']
 
 class ImageAlbum(BaseModel):
     """To have an ability to add multiple images to models"""
@@ -190,6 +202,23 @@ class BaseQuestion(BasePolymorphic):
     )
 
     listed = models.BooleanField('Публичный доступ', default=True)
+
+    def is_saved(self, user):
+
+        if not user.is_authenticated:
+            return False
+        
+        # Check if user has profile
+        try:
+            profile = user.profile
+        except AttributeError:
+            # If not, create it
+            profile = Profile.objects.create(user=user)
+            profile.save()
+            return False
+        
+        # Check if question is in user's saved questions
+        return self in profile.saved_questions.all()
 
     def answer_variants(self):
         if self.type == 'REL':

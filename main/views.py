@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
 from django.core.cache import cache
 from django.core.paginator import Paginator
 
@@ -29,10 +33,31 @@ def update(request):
     else:
         return HttpResponse("Couldn't update the code on PythonAnywhere")
 
+@login_required
+@require_POST
+def save_question(request, question_id):
+
+    question = get_object_or_404(Question, id=question_id)
+
+    profile = request.user.profile
+    question.saved_by.add(profile)
+
+    return JsonResponse({'success': True})
+
+@login_required
+@require_POST
+def unsave_question(request, question_id):
+
+    question = get_object_or_404(Question, id=question_id)
+
+    profile = request.user.profile
+    question.saved_by.remove(profile)
+
+    return JsonResponse({'success': True})
 
 def show_selected_questions(request, questions, h1_content: str, p_content: str, **kwargs):
 
-    # get dict of get params withouth page
+    # get dict of get params without page
     get_params = request.GET.copy()
     if 'page' in get_params:
         get_params.pop('page')
@@ -80,12 +105,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     # add kwargs to context
     context.update(kwargs)
 
-    response = render(request, 'problems.html', context=context)
-    # cash response page if there is no get params
-    if not request.GET:
-        cache.set('problems', response, 60 * 10)
-    
-    return response
+    return context
 
 def advanced_filter(questions, request, requested_sections):
     # TODO: TO SERVICES?
@@ -125,7 +145,7 @@ def advanced_filter(questions, request, requested_sections):
 def problems(request):
 
     # check if there is no get params
-    if not request.GET:
+    if not request.GET and not request.user.is_authenticated:
         # check if page is in cache
         if cache.has_key('problems'):
             return cache.get('problems')
@@ -191,12 +211,21 @@ def problems(request):
 
 
     if fitler_type:
-        return show_selected_questions(request, questions, h1_content, p_content)
+        context =  show_selected_questions(request, questions, h1_content, p_content)
     else:
-        return show_selected_questions(
+        context = show_selected_questions(
             request, questions, h1_content, p_content,
             requested_sections_slugs=requested_sections_slugs, requested_topic=requested_topic
         )
+
+    response = render(request, 'problems.html', context=context)
+
+    if not request.GET and not request.user.is_authenticated:
+        cache.set('problems', response, 60 * 10)
+    
+    return response
+
+    
 
 def problems_by_section(request, slug):
 
@@ -211,7 +240,9 @@ def problems_by_section(request, slug):
     h1_content = ''
     p_content = f'Раздел <b>{section.name}</b>'
 
-    return show_selected_questions(request, questions, h1_content, p_content)
+    context = show_selected_questions(request, questions, h1_content, p_content)
+
+    return render(request, 'problems.html', context=context)
 
 def question_page(request, slug):
 
@@ -268,14 +299,23 @@ def index(request):
 
     return render(request, 'index.html', context=context)
 
+@login_required
 def personal(request):
+    
+    saved_questions = request.user.profile.saved_questions.all().order_by('-id')
 
-    if not request.user.is_authenticated:
-        return redirect(reverse('main:login'))
+    requested_query = request.GET.get('query')
+    if requested_query:
+        saved_questions = filter_questions_by_query(requested_query, saved_questions)
 
-    context = {
-        'nav': [False, False, False, True]
-    }
+    context = show_selected_questions(
+        request, saved_questions,
+        'Ваши сохранённые вопросы',
+        'Вы можете добавить вопросы в избранное, нажав на звёздочку в правом верхнем углу вопроса'
+    )
+    # TODO h and p content out of show_selected_questions (and probably nav)???
+
+    context['nav'] = [False, False, False, True]
 
     return render(request, 'personal.html', context=context)
 
