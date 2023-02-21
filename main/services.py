@@ -120,7 +120,7 @@ def advanced_filter_service(
 ) -> Tuple[QuerySet, str]:
     """Returns questions, filtered by all requested parameters."""
 
-    print('QUESTIONS BEFORE FILTERING', len(questions))
+    
 
     p_content = ''
 
@@ -159,7 +159,7 @@ def advanced_filter_service(
             if sections_without_topics:
                 questions = questions | questions_without_topics
 
-    print('QUESTIONS AFTER SECTIONS FILTERING', len(questions))
+    
 
         
     # TODO abstraction for similar filtering (competition + stage, section + topic)
@@ -177,7 +177,7 @@ def advanced_filter_service(
         if competitions_without_stages:
             p_content += f'Олимпиады: <b>{", ".join([competition.name for competition in competitions_without_stages])}</b><br>'
             questions_without_stages = questions.filter(competition__in=competitions_without_stages)
-            print(competitions_without_stages)
+            
         
         if requested_stages:
 
@@ -191,7 +191,7 @@ def advanced_filter_service(
 
             for competition, stage_batch, question_batch in zip(competitions_with_stages, stages, questions):
                 new_questions.append(question_batch.filter(new_stage__in=stage_batch))
-                print('STAGE BATCH', stage_batch)
+                
                 p_content += f'<b>{competition.name}</b>: {", ".join([stage.name for stage in stage_batch])}<br>'
 
             # merge batches into one queryset
@@ -203,23 +203,23 @@ def advanced_filter_service(
                 questions = questions | questions_without_stages
 
         else:
-            print('STAGES NOT REQUESTED')
+            
             questions = questions_without_stages
 
-    print('QUESTIONS AFTER COMPETITIONS FILTERING', len(questions))
+    
 
 
     if requested_years:
         questions = questions.filter(year__in=requested_years)
         p_content += f'Годы проведения: <b>{", ".join(requested_years)}</b><br>'
 
-    print('QUESTIONS AFTER YEARS FILTERING', len(questions))
+    
     
     if requested_parts:
         questions = questions.filter(part__in=requested_parts)
         p_content += f'Части: <b>{", ".join(requested_parts)}</b><br>'
 
-    print('QUESTIONS AFTER PARTS FILTERING', len(questions))
+    
 
     return questions, p_content
 
@@ -254,8 +254,8 @@ def advanced_filter_service(
 #         qtype = self.question.type
 
 #         answers = self.question.right_answers.all()
-#         print(f'GOT RELATED: {answers}')
-#         print(qtype)
+#         
+#         
 
 #         if qtype == 'REL':
 #             if answers.exclude(flag__isnull=True).exists():
@@ -272,18 +272,18 @@ def advanced_filter_service(
 #         question = self.question
 #         question.full_clean()
 #         question.save()
-#         print('QUESTION SAVED')
+#         
         
 #         # Add and save related
 #         for model_name, model in self.related_models.items():
 #             for related_object in model:
 #                 getattr(question, model_name).add(related_object)
-#         print('RELATED ADDED')
+#         
 #         question.save()
-#         print('RELATED SAVED')
+#         
         
 #         self._validate_type()
-#         print('TYPES VALIDATED')
+#         
 
 #         return question
 
