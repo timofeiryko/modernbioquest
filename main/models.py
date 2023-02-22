@@ -38,7 +38,7 @@ class Profile(BasePolymorphic):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name='Пользователь')
     
-    saved_questions = models.ManyToManyField('BaseQuestion', related_name='saved_by', verbose_name='Сохраненные вопросы', blank=True)
+    saved_questions = models.ManyToManyField('BaseQuestion', through='BaseQuestionSave', related_name='saved_by', verbose_name='Сохраненные вопросы', blank=True)
 
     def __str__(self):
         return f'{self.user.username}'
@@ -233,6 +233,12 @@ class BaseQuestion(BasePolymorphic):
 
         return answer_vars, answer_vars_rel
 
+class BaseQuestionSave(BasePolymorphic):
+    """To handle many-to-many relations between questions and user profiles."""
+
+    question = models.ForeignKey('BaseQuestion', on_delete=models.CASCADE)
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE)
+
 class Test(BaseModel):
     """To store tests (sets of questions)."""
     
@@ -371,8 +377,6 @@ class Question(BaseQuestion):
     def get_absolute_url(self):
         return reverse('main:question_page', kwargs={'slug': self.link})
     
-    
-
 
     class Meta:
         verbose_name = 'Вопрос с олимпиады'

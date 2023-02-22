@@ -310,7 +310,7 @@ def personal(request):
         profile = Profile.objects.create(user=request.user)
         profile.save()
     
-    saved_questions = request.user.profile.saved_questions.all().order_by('-id')
+    saved_questions = request.user.profile.saved_questions.all().order_by('-basequestionsave__updated_at')
 
     requested_query = request.GET.get('query')
     if requested_query:
