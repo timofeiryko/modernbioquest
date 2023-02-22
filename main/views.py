@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 
 from django_registration.backends.one_step.views import RegistrationView
 
-from .models import Question, Section, Competition, NewStage, Topic
+from .models import Question, Section, Competition, Profile
 from .configs import QUESTIONS_PER_PAGE
 from .services import get_question_by_link, get_questions_by_sections, filter_questions_by_query, advanced_filter_service
 
@@ -305,6 +305,10 @@ def index(request):
 
 @login_required
 def personal(request):
+
+    if not hasattr(request.user, 'profile'):
+        profile = Profile.objects.create(user=request.user)
+        profile.save()
     
     saved_questions = request.user.profile.saved_questions.all().order_by('-id')
 

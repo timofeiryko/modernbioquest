@@ -208,11 +208,7 @@ class BaseQuestion(BasePolymorphic):
         if not user.is_authenticated:
             return False
         
-        # Check if user has profile
-        try:
-            profile = user.profile
-        except AttributeError:
-            # If not, create it
+        if not hasattr(user, 'profile'):
             profile = Profile.objects.create(user=user)
             profile.save()
             return False
