@@ -214,7 +214,7 @@ class BaseQuestion(BasePolymorphic):
             return False
         
         # Check if question is in user's saved questions
-        return self in profile.saved_questions.all()
+        return self in user.profile.saved_questions.all()
 
     def answer_variants(self):
         if self.type == 'REL':
