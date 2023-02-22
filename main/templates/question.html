@@ -113,7 +113,7 @@
                 {% for answer in question.answer_variants.0 %}
                     <div class="row">
                     <div class="col">
-                        <p>{% if answer.flag %}<mark style="background-color:rgba(40, 167, 69, 0.5); border-radius:5px"><b>{{ answer.label }}</b></mark> {% else %}{{ answer.label }}{% endif %}</p>
+                        <p>{% if answer.flag %}<mark style="background-color:rgba(40, 167, 69, 0.5); border-radius:5px"><b>{{ answer.label| linebreaksbr }}</b></mark> {% else %}{{ answer.label | linebreaksbr }}{% endif %}</p>
                     </div>
                     <div class="col">
                         <p>{% if answer.flag %}<b>{{ answer.text | linebreaksbr }}</b> {% else %}{{ answer.text | linebreaksbr }}{% endif %}</p>
