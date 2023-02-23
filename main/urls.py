@@ -12,6 +12,7 @@ urlpatterns = [
     path('problems/', views.problems, name='problems'),
     path('problems/<str:slug>', views.question_page, name='question_page'),
     path('sections/<str:slug>', views.problems_by_section, name='section_url'),
+    path('competitions/<str:slug>', views.problems_by_competition, name='competition_url'),
     path('update_server/', views.update, name='update'),
     # auth
     path('accounts/', include('django.contrib.auth.urls')),

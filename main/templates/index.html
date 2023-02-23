@@ -164,6 +164,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Competitions widget-->
+            <div class="card mb-4">
+                <div class="card-header">Олимпиады</div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for competition in competitions %}
+                        <li class="list-group-item"><a href="{{ competition.get_absolute_url }}">{{ competition.name }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
             <!-- Sections and topics widget-->
             <div class="card mb-4">
                 <div class="card-header">Все темы и разделы</div>

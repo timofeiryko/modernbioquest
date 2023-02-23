@@ -132,6 +132,10 @@ class Competition(BaseModel):
         verbose_name = 'Олимпиада'
         verbose_name_plural = 'Олимпиады'
 
+    def get_absolute_url(self):
+        return reverse('main:competition_url', kwargs={'slug': self.slug})
+    
+
     def __str__(self):
         return self.name
 

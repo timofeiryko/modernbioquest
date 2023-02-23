@@ -88,6 +88,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
             last_url += ('&' + get_params.urlencode())
 
     sections = Section.objects.order_by('name')
+    competitions = Competition.objects.order_by('name')
 
     context = {
         'nav': [False, True, False, False],
@@ -99,6 +100,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
         'h1_content': h1_content,
         'p_content': p_content,
         'sections': sections,
+        'competitions': competitions,
         'page_urls': page_urls
     }
 
@@ -109,8 +111,6 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
 
 def advanced_filter(questions, request, requested_sections):
     # TODO: TO SERVICES?
-
-    print('advanced_filter')
 
     requested_topics = request.GET.getlist('topic')
 
@@ -145,8 +145,6 @@ def advanced_filter(questions, request, requested_sections):
     return questions, h1_content, p_content
 
 def problems(request):
-
-    print('problems view')
 
     # check if there is no get params
     if not request.GET and not request.user.is_authenticated:
@@ -248,6 +246,24 @@ def problems_by_section(request, slug):
 
     return render(request, 'problems.html', context=context)
 
+# TODO: DRY
+def problems_by_competition(request, slug):
+
+    # Check if there are any get parameters in the request
+    params = request.GET
+    if params:
+        return redirect(reverse('main:problems') + f'?{params.urlencode()}')
+
+    competition = Competition.objects.get(slug=slug)
+    questions = Question.objects.order_by('-id').filter(competition=competition, listed=True)
+
+    h1_content = ''
+    p_content = f'Вопросы <b>{competition.name}</b>'
+
+    context = show_selected_questions(request, questions, h1_content, p_content)
+
+    return render(request, 'problems.html', context=context)
+
 def question_page(request, slug):
 
     query = request.GET.get('query')
@@ -319,7 +335,7 @@ def personal(request):
     context = show_selected_questions(
         request, saved_questions,
         'Ваши сохранённые вопросы',
-        'Вы можете добавить вопросы в избранное, нажав на звёздочку в правом верхнем углу вопроса'
+        'Вы можете добавить вопросы в избранное, нажав на кнопку в правом верхнем углу вопроса'
     )
     # TODO h and p content out of show_selected_questions (and probably nav)???
 
