@@ -313,6 +313,7 @@ class Question(BaseQuestion):
     grade = models.IntegerField('Класс', null=True)
 
     part = models.CharField('Часть', max_length=100, null=True)
+    variant = models.CharField('Вариант', max_length=100, null=True, blank=True)
 
     number_9 = models.IntegerField('Номер в 9 классе', null=True, default=0)
     number_10 = models.IntegerField('Номер в 10 классе', null=True, default=0)
