@@ -376,7 +376,7 @@ class Question(BaseQuestion):
 
         return generate_question_link(
             self.competition.slug, self.new_stage.slug, self.year,
-            grade, self.part, unique_number
+            grade, self.part, unique_number, self.variant
         )
 
     def get_absolute_url(self):

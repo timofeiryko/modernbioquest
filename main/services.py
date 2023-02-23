@@ -66,14 +66,26 @@ def get_questions_by_sections(sections: List[Section]):
 def get_question_by_link(link: str) -> Question:
     """Returns question by its link. Raises 404 if question doesn't exist."""
 
+    variant = None
+
     # link is defined by generate_question_link function from scripts.py
-    competition_slug, stage_slug, year, grade, part, number = link.split('-')
+    link_parts = link.split('-')
+    if len(link_parts) == 6:
+        competition_slug, stage_slug, year, grade, part, number = link.split('-')
+    elif len(link_parts) == 7:
+        competition_slug, stage_slug, year, grade, part, variant, number = link.split('-')
+    else:
+        raise Http404('Question does not exist')
+    
     competition = Competition.objects.get(slug=competition_slug)
     year, grade, part, number = int(year), int(grade), int(part), int(number)
     stage = NewStage.objects.get(slug=stage_slug, competition=competition)
 
     # to validate, that the link was parsed correctly
-    assert link == generate_question_link(competition_slug, stage_slug, year, grade, part, number)
+    correct_link = generate_question_link(competition_slug, stage_slug, year, grade, part, number, variant)
+    assert link == correct_link, f'Link {link} is not valid, it shoud be {correct_link}!'
+    print(link)
+    print(variant)
 
     try:
         questions_batch =  Question.objects.filter(
@@ -85,6 +97,12 @@ def get_question_by_link(link: str) -> Question:
         )
     except Question.DoesNotExist:
         raise Http404('Question does not exist')
+    
+    if variant is not None:
+        try:
+            questions_batch = questions_batch.filter(variant=variant)
+        except Question.DoesNotExist:
+            raise Http404('Question does not exist')
 
     try:
         if grade == 11:
@@ -97,6 +115,7 @@ def get_question_by_link(link: str) -> Question:
             question = questions_batch.filter(number_others=number)
     except Question.DoesNotExist:
         raise Http404('Question does not exist')
+
 
     # check that the queryset has length 1
     if len(question) == 0:

@@ -36,8 +36,12 @@ def get_stage_name(stage_slug: str) -> str:
 
 def generate_question_link(
     competition: str, stage: str,
-    year: int, grade: int, part: int, number: int
+    year: int, grade: int, part: int, number: int, variant: str = None
 ) -> str:
+    
+    if variant is not None:
+        part = f'{part}-{variant}'
+
     return '-'.join([
         competition, stage,
         str(year), str(grade), str(part), str(number)
