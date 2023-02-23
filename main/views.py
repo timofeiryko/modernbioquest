@@ -71,7 +71,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     next_url = f'?page={page.next_page_number()}' if page.has_next() else ''
     last_url = f'?page={page.paginator.num_pages}' if page.has_next() else ''
 
-    # generate dict of urls with page numbers uaing page.paginator.page_range and add get params to them
+    # generate dict of urls with page numbers using page.paginator.page_range and add get params to them
     page_urls = {}
     for page_number in page.paginator.page_range:
         page_urls[page_number] = f'?page={page_number}'
@@ -231,8 +231,9 @@ def problems(request):
 
 def problems_by_section(request, slug):
 
-    # Check if there are any get parameters in the request
-    params = request.GET
+    # Check if there are any get parameters in the request except page
+    params = request.GET.copy()
+    params.pop('page', None)
     if params:
         return redirect(reverse('main:problems') + f'?{params.urlencode()}')
 
@@ -249,8 +250,9 @@ def problems_by_section(request, slug):
 # TODO: DRY
 def problems_by_competition(request, slug):
 
-    # Check if there are any get parameters in the request
-    params = request.GET
+    # Check if there are any get parameters in the request except page
+    params = request.GET.copy()
+    params.pop('page', None)
     if params:
         return redirect(reverse('main:problems') + f'?{params.urlencode()}')
 
