@@ -20,6 +20,7 @@ Pillow==9.4.0
 pip-autoremove==0.10.0
 ply==3.11
 pymemcache==4.0.0
+python-dotenv==1.0.0
 python-Levenshtein==0.20.8
 python-monkey-business==1.0.0
 rapidfuzz==2.13.3
