@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(4a9%&8#3c7e24f&s3^7fa+brb+(5+c2er8^5_dymkm6^f5vek'
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -124,9 +127,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
-DROPBOX_OAUTH2_TOKEN = 'sl.BZrSjeoVb-xOKYEUpU7SZW1q4iV56l6dxd1mHrZnnuS3vb4A2efZFVW6wWrOHOMiMAoK3ABec7X1-enwP7xlMXaEX4unUIABfxVpm2U_7kW3s-MOHH5-dy9i4OISuQYgOxVgq8go-5yu'
-DROPBOX_APP_KEY = '5r0hpt04cct2cjr'
-DROPBOX_APP_SECRET = 'vb9hzl5fsq4nley'
+DROPBOX_OAUTH2_TOKEN = str(os.getenv('DROPBOX_OAUTH2_TOKEN'))
+DROPBOX_APP_KEY = str(os.getenv('DROPBOX_APP_KEY'))
+DROPBOX_APP_SECRET = str(os.getenv('DROPBOX_APP_SECRET'))
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
