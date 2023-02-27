@@ -127,7 +127,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
-DROPBOX_OAUTH2_TOKEN = str(os.getenv('DROPBOX_OAUTH2_TOKEN'))
+DROPBOX_OAUTH2_REFRESH_TOKEN = str(os.getenv('DROPBOX_OAUTH2_TOKEN'))
 DROPBOX_APP_KEY = str(os.getenv('DROPBOX_APP_KEY'))
 DROPBOX_APP_SECRET = str(os.getenv('DROPBOX_APP_SECRET'))
 
