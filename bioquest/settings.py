@@ -123,6 +123,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+DEFAULT_FILE_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
+DROPBOX_OAUTH2_TOKEN = 'sl.BZrSjeoVb-xOKYEUpU7SZW1q4iV56l6dxd1mHrZnnuS3vb4A2efZFVW6wWrOHOMiMAoK3ABec7X1-enwP7xlMXaEX4unUIABfxVpm2U_7kW3s-MOHH5-dy9i4OISuQYgOxVgq8go-5yu'
+DROPBOX_APP_KEY = '5r0hpt04cct2cjr'
+DROPBOX_APP_SECRET = 'vb9hzl5fsq4nley'
+
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
 
