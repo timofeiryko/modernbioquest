@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 import os
 
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -148,3 +152,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 
 CLOUDINARY_URL = str(os.getenv('CLOUDINARY_URL'))
+
+CLOUDINARY_CLOUD_NAME = str(os.getenv('CLOUDINARY_CLOUD_NAME'))
+CLOUDINARY_API_KEY = str(os.getenv('CLOUDINARY_API_KEY'))
+CLOUDINARY_API_SECRET = str(os.getenv('CLOUDINARY_API_SECRET'))
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+    secure=True
+)
