@@ -44,7 +44,10 @@ INSTALLED_APPS = [
 
     'main',
     'nested_admin',
-    'polymorphic'
+    'polymorphic',
+
+    'cloudinary_storage',
+    'cloudinary'
 ]
 
 MIDDLEWARE = [
@@ -126,6 +129,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # DEFAULT_FILE_STORAGE = 'storages.backends.dropbox.DropBoxStorage'
 # DROPBOX_OAUTH2_REFRESH_TOKEN = str(os.getenv('DROPBOX_OAUTH2_TOKEN'))
 # DROPBOX_APP_KEY = str(os.getenv('DROPBOX_APP_KEY'))
@@ -141,3 +146,5 @@ MEDIA_URL = 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/accounts/login/'
+
+CLOUDINARY_URL = str(os.getenv('CLOUDINARY_URL'))
