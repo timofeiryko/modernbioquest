@@ -443,7 +443,7 @@ class RightAnswer(BaseAnswer):
     parent_question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE, null=True, blank=True, related_name='right_answers')
 
     class Meta:
-        ordering = ['parent_question', '-id']
+        ordering = ['parent_question', 'id']
         verbose_name = 'Вариант или пункт'
         verbose_name_plural = 'Вариант или пункт'
 
