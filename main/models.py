@@ -224,7 +224,7 @@ class BaseQuestion(BasePolymorphic):
         if self.type == 'REL':
             answer_vars = []
             answer_vars_rel = []
-            for answer in self.right_answers.all():
+            for answer in self.right_answers.all().order_by('id'):
                 if answer.label and answer.text:
                     answer_vars.append(Variant(answer.label, answer.text, answer.flag))
                 else:
@@ -413,7 +413,7 @@ class SolvedQuestion(BaseModel):
     )
 
 class BaseAnswer(BaseModel):
-    """To store answers for the questions. It is an abstract class, because there are dufferent types of answers: right and user.
+    """To store answers for the questions. It is an abstract class, because there are different types of answers: right and user.
     Right answer has foreign key to polymorphic BaseQuestion, user answer - to SolvedQuestion.
     We need it, because we want to have an ability to add multiple answers for one question (if we have several points in it, for example)."""
 
@@ -443,7 +443,7 @@ class RightAnswer(BaseAnswer):
     parent_question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE, null=True, blank=True, related_name='right_answers')
 
     class Meta:
-        ordering = ['parent_question', 'label']
+        ordering = ['parent_question', '-id']
         verbose_name = 'Вариант или пункт'
         verbose_name_plural = 'Вариант или пункт'
 
