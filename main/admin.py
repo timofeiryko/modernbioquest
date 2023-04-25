@@ -2,6 +2,13 @@ from django.contrib import admin
 
 import nested_admin
 
+from django.db.models import QuerySet, Model
+from django.http import HttpRequest
+
+from typing import Any, Tuple
+
+from .services import filter_questions_by_query
+
 from .models import Competition, NewStage, Explanation, Section, Topic, Image, ImageAlbum, Question, RightAnswer, TestQuestion, Test, Profile
 admin.site.register([Competition, NewStage, Explanation, Section, Image, Test, Profile])
 
@@ -33,6 +40,7 @@ class QuestionAdmin(admin.ModelAdmin):
     model = Question
     inlines = [RightAnswerIine]
     exclude = ['quauthor']
+    search_fields = ['title', 'text']
 
     def save_model(self, request, obj, form, change): 
         obj.user = request.user
@@ -49,6 +57,18 @@ class QuestionAdmin(admin.ModelAdmin):
 
     list_display = ['verbose_title', 'part', 'number']
     list_filter = ['listed', 'competition', 'year', 'new_stage']
+
+    def get_search_results(self, request: HttpRequest, queryset: QuerySet[Any], search_term: str) -> Tuple[QuerySet[Any], bool]:
+
+        queryset = QuerySet(model=Question)
+        use_distinct = False
+
+        if search_term:
+            queryset = filter_questions_by_query(query=search_term, questions=queryset)
+
+        return queryset, use_distinct
+    
+    search_fields = ['title', 'text']
 
 @admin.register(TestQuestion)
 class TestQuestionAdmin(admin.ModelAdmin):
@@ -72,6 +92,8 @@ class TestQuestionAdmin(admin.ModelAdmin):
 
     list_display = ['parent_test', 'shortened']
     list_filter = ['parent_test']
+
+
     
 
 admin.site.register(RightAnswer)

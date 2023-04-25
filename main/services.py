@@ -20,7 +20,7 @@ def extend_question_text(question: Question) -> str:
 
     answer_variants = question.answer_variants()[0]
     for answer_variant in answer_variants:
-        full_text += ('\n' + answer_variant.label + ' ' + answer_variant.text)
+        full_text += ('\n' + answer_variant.label if answer_variant.label else '' + ' ' + answer_variant.text if answer_variant.text else '')
 
     full_text += ('\n' + ' '.join([section.name for section in question.sections.all()]))
     full_text += ('\n' + ' '.join([topic.name for topic in question.topics.all()]))
@@ -29,6 +29,8 @@ def extend_question_text(question: Question) -> str:
 
 def filter_questions_by_query(query: str, questions):
     """Returns questions by search query."""
+
+    #TODO: SPEED IT UP
 
     # Check if query is a section name
     section = Section.objects.filter(name=query).first()
