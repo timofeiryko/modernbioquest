@@ -4,6 +4,7 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 
 from django.http import Http404
 from django.db.models.query import QuerySet
+from django.db.models import Q
 
 from .models import Question, Competition, Section, Topic, NewStage
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
@@ -136,8 +137,8 @@ def advanced_filter_service(
         requested_stages: Optional[List[str]],
 
         requested_years: Optional[List[str]],
-        requested_parts: Optional[List[str]]
-        # requested_grades: Optional[List[str]]
+        requested_parts: Optional[List[str]],
+        requested_grades: Optional[List[str]]
 ) -> Tuple[QuerySet, str]:
     """Returns questions, filtered by all requested parameters."""
 
@@ -180,8 +181,6 @@ def advanced_filter_service(
             if sections_without_topics:
                 questions = questions | questions_without_topics
 
-    
-
         
     # TODO abstraction for similar filtering (competition + stage, section + topic)
 
@@ -206,7 +205,7 @@ def advanced_filter_service(
             stages = NewStage.objects.filter(slug__in=requested_stages)
 
             # divide questions and stages into batches by competition
-            questions = [Question.objects.filter(competition=competition) for competition in competitions_with_stages]
+            questions = [questions.filter(competition=competition) for competition in competitions_with_stages]
             stages = [stages.filter(competition=competition) for competition in competitions_with_stages]
             new_questions = []
 
@@ -227,19 +226,32 @@ def advanced_filter_service(
             
             questions = questions_without_stages
 
-    
-
-
     if requested_years:
         questions = questions.filter(year__in=requested_years)
         p_content += f'Годы проведения: <b>{", ".join(requested_years)}</b><br>'
-
-    
     
     if requested_parts:
         questions = questions.filter(part__in=requested_parts)
         p_content += f'Части: <b>{", ".join(requested_parts)}</b><br>'
 
+    if requested_grades:
+        # TODO Upgrade to Python 3.10 and use structural pattern matching
+
+        # Filter, using number_9, number_10 and number_11 fields: if number_N is not 0 than the question is for N grade
+        questions_9 = questions.filter(number_9__gt=0)
+        questions_10 = questions.filter(number_10__gt=0)
+        questions_11 = questions.filter(number_11__gt=0)
+
+        # Merge questions_9, questions_10 and questions_11 into one queryset, according to requested_grades
+        questions = Question.objects.none()
+        if '9' in requested_grades:
+            questions = questions | questions_9
+        if '10' in requested_grades:
+            questions = questions | questions_10
+        if '11' in requested_grades:
+            questions = questions | questions_11
+
+        p_content += f'Классы: <b>{", ".join(requested_grades)}</b><br>'
     
 
     return questions, p_content

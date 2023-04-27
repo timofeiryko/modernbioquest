@@ -104,6 +104,22 @@
                 </div>
 
                 <div class="card-body">
+                    <h5 class="card-title">Выберите класс:</h5>
+                    
+                    {% for grade in grades %}
+                    <ul class="list-group">
+                        <div class="form-group">
+                                <li class="list-group-item border-0">
+                                    <input type="checkbox" id="box_grade_{{ grade }}" name="grade" value="{{ grade }}" {% if grade == '11' %} checked{% endif %}/>
+                                    <label class="form-check-label" for="box_grade_{{ grade }}">{{ grade }}</label>
+                                </li>
+                        </div>
+                    </ul>
+                    {% endfor %}
+
+                </div>
+
+                <div class="card-body">
                     <h5 class="card-title">Выберите год:</h5>
                     
                     {% for year in years %}
@@ -134,6 +150,7 @@
                     {% endfor %}
 
                 </div>
+                
                 
                 <div class="card-body">
                     <button class="btn btn-primary" id="button-advanced-filter" type="submit">

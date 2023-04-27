@@ -119,6 +119,7 @@ def advanced_filter(questions, request, requested_sections):
 
     requested_years = request.GET.getlist('year')
     requested_parts = request.GET.getlist('part')
+    requested_grades = request.GET.getlist('grade')
 
     questions, p_content = advanced_filter_service(
         questions,
@@ -127,7 +128,8 @@ def advanced_filter(questions, request, requested_sections):
         requested_competitions,
         requested_stages,
         requested_years,
-        requested_parts
+        requested_parts,
+        requested_grades
     )
 
     if not questions:
@@ -307,6 +309,7 @@ def index(request):
     quesions = Question.objects.filter(listed = True).order_by()
     years = quesions.values_list('year', flat=True).distinct().order_by('-year')
     parts = quesions.values_list('part', flat=True).distinct().order_by('part')
+    grades = ['9', '10', '11']
 
     p_content = 'На этом сайте собраны вопросы биологических олимпиад, размеченные по разделам и темам, доступны другие фильтры'
 
@@ -316,7 +319,8 @@ def index(request):
         'competitions': competitions,
         'years': years,
         'parts': parts,
-        'p_content': p_content
+        'p_content': p_content,
+        'grades': grades
     }
 
     return render(request, 'index.html', context=context)
