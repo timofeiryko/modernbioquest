@@ -62,7 +62,7 @@ ELASTICSEARCH_DSL = {
         'hosts': ELASTICSEARCH_HOST_URL,
         'port': 443,
         'use_ssl': True,
-        'verify_certs': True,
+        'verify_certs': False,
         'ca_certs': certifi.where(),
         # 'http_auth': (ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD),
         'version': (7, 10, 2)
