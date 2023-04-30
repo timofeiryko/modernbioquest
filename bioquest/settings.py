@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import certifi
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -58,10 +59,13 @@ ELASTICSEARCH_DSL = {
     'default': {
         'hosts': ELASTICSEARCH_HOST_URL,
         'port': 443,
-        'use_ssl': False,
+        'use_ssl': True,
         'version': (7, 10, 2),
     },
 }
+
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
