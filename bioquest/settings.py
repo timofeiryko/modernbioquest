@@ -58,8 +58,8 @@ ELASTICSEARCH_DSL = {
     'default': {
         'hosts': ELASTICSEARCH_HOST_URL,
         'port': 443,
-        'use_ssl': True,
-        'version': (7, 10, 2)
+        'use_ssl': False,
+        'version': (7, 10, 2),
     },
 }
 
