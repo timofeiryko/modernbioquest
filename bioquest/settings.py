@@ -46,9 +46,22 @@ INSTALLED_APPS = [
     'nested_admin',
     'polymorphic',
 
-    'cloudinary_storage',
-    'cloudinary'
+    # 'cloudinary_storage',
+    # 'cloudinary',
+
+    'django_elasticsearch_dsl'
 ]
+
+ELASTICSEARCH_HOST_URL = os.getenv('ELASTICSEARCH_HOST_URL')
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': ELASTICSEARCH_HOST_URL,
+        'port': 443,
+        'use_ssl': True,
+        'version': (7, 10, 2)
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

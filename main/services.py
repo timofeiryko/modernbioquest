@@ -4,13 +4,34 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 
 from django.http import Http404
 from django.db.models.query import QuerySet
-from django.db.models import Q
 
 from .models import Question, Competition, Section, Topic, NewStage
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
 from typing import List, Tuple, Optional
+
+from elasticsearch_dsl import Q
+from .search_index import QuestionDocument
+
+
+# def question_fast_search(query: str) -> QuerySet:
+#     """Returns questions by search query using Elasticsearch."""
+
+#     # Create an Elasticsearch search object
+#     s = Search(index='questions')
+
+#     # Add a full-text search query to the search object
+#     s = s.query('multi_match', query=query, fields=['text', 'title', 'answer_variants.text', 'answer_variants.label' 'sections.name', 'topics.name'])
+
+#     # Execute the search query and get the matching `Question` objects
+#     matching_pks = [hit.meta.id for hit in s.execute()]
+
+#     # Filter the `questions` queryset by the matching primary keys
+#     questions = questions.filter(pk__in=matching_pks)
+
+#     return questions
+
 
 def extend_question_text(question: Question) -> str:
     """Extends question text with its title, answer variants, scetions and topics."""
@@ -31,7 +52,7 @@ def extend_question_text(question: Question) -> str:
 def filter_questions_by_query(query: str, questions):
     """Returns questions by search query."""
 
-    #TODO: SPEED IT UP
+    query = query.strip().capitalize()
 
     # Check if query is a section name
     section = Section.objects.filter(name=query).first()
@@ -45,16 +66,17 @@ def filter_questions_by_query(query: str, questions):
 
     if not (section or topic):
 
-        # Such itertive search is inefficient, but icontains for non-english languages is not supported by sqlite
-        # In addition, fuzz search allows to perform easy not exact search
-        matching_pks = []
-        for question in questions:
-            text = extend_question_text(question)
-            # TODO Something more smart like elastic search or SpaCy
-            if fuzz_search(query, text, treshold=FUZZ_TRESHOLD):
-                matching_pks.append(question.pk)
-
-        questions = questions.filter(pk__in=matching_pks)
+        search = QuestionDocument.search().query(
+            Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
+        )
+        results = search.execute()
+        document_ids = [hit.meta.id for hit in results.hits]
+        questions = Question.objects.filter(id__in=document_ids)
+        
+        # sort by relevance
+        document_ids = list(map(int, document_ids))
+        questions = sorted(questions, key=lambda question: document_ids.index(question.id))
+        
 
     return questions
 

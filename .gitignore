@@ -1,6 +1,9 @@
 pdfparsing/*
 !pdfparsing/*.ipynb
 !pdfparsing/parser_dataclasses.py
+
+bioquest_env
+
 # Django
 *.log
 *.pot
