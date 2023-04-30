@@ -54,18 +54,20 @@ INSTALLED_APPS = [
 ]
 
 ELASTICSEARCH_HOST_URL = os.getenv('ELASTICSEARCH_HOST_URL')
+# ELASTICSEARCH_USERNAME = os.getenv('ELASTICSEARCH_USERNAME')
+# ELASTICSEARCH_PASSWORD = os.getenv('ELASTICSEARCH_PASSWORD')
 
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': ELASTICSEARCH_HOST_URL,
         'port': 443,
         'use_ssl': True,
-        'version': (7, 10, 2),
+        'verify_certs': True,
+        'ca_certs': certifi.where(),
+        # 'http_auth': (ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD),
+        'version': (7, 10, 2)
     },
 }
-
-os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
