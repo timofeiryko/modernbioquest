@@ -62,7 +62,7 @@ def show_selected_questions(request, questions, h1_content: str, p_content: str,
     if 'page' in get_params:
         get_params.pop('page')
 
-    paginator = Paginator(questions, QUESTIONS_PER_PAGE)
+    paginator = Paginator(questions.distinct(), QUESTIONS_PER_PAGE)
     page_number = request.GET.get('page', 1)
     page = paginator.get_page(page_number)
 

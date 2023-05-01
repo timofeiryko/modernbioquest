@@ -59,12 +59,12 @@ def filter_questions_by_query(query: str, questions):
     # Check if query is a section name
     section = Section.objects.filter(name__in=[query, query.capitalize()]).first()
     if section:
-        questions = get_questions_by_sections([section])
+        questions = get_questions_by_sections([section]).distinct()
     
     # Check if query is a topic name
     topic = Topic.objects.filter(name=query).first()
     if topic:
-        questions = Question.objects.order_by('-id').filter(topics__in=[topic, topic.capitalize()])
+        questions = Question.objects.order_by('-id').filter(topics__in=[topic, topic.capitalize()]).distinct()
 
     if not (section or topic):
 
@@ -72,7 +72,7 @@ def filter_questions_by_query(query: str, questions):
 
         # if text or label of RightAnswer matches query, also include this question
         right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
-        questions = questions | Question.objects.filter(right_answers__in=right_answers)
+        questions = (questions | Question.objects.filter(right_answers__in=right_answers)).distinct()
 
         # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
 
