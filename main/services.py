@@ -4,8 +4,9 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 
 from django.http import Http404
 from django.db.models.query import QuerySet
+from django.db.models import Q as DjangoQ
 
-from .models import Question, Competition, Section, Topic, NewStage
+from .models import Question, Competition, Section, Topic, NewStage, RightAnswer
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
@@ -52,21 +53,26 @@ def extend_question_text(question: Question) -> str:
 def filter_questions_by_query(query: str, questions):
     """Returns questions by search query."""
 
-    query = query.strip().capitalize()
+    query = query.strip()
+    questions = questions.filter(listed=True)
 
     # Check if query is a section name
-    section = Section.objects.filter(name=query).first()
+    section = Section.objects.filter(name__in=[query, query.capitalize()]).first()
     if section:
         questions = get_questions_by_sections([section])
     
     # Check if query is a topic name
     topic = Topic.objects.filter(name=query).first()
     if topic:
-        questions = Question.objects.order_by('-id').filter(listed = True, topics__name__icontains=topic.name)
+        questions = Question.objects.order_by('-id').filter(topics__in=[topic, topic.capitalize()])
 
     if not (section or topic):
 
-        questions = Question.objects.filter(listed=True).filter(text__icontains=query).order_by('-id')
+        questions = questions.filter(text__icontains=query)
+
+        # if text or label of RightAnswer matches query, also include this question
+        right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
+        questions = questions | Question.objects.filter(right_answers__in=right_answers)
 
         # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
 
