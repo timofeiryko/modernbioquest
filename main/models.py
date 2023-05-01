@@ -395,11 +395,8 @@ class Question(BaseQuestion):
 class SolvedQuestion(BaseModel):
     """To store information about the questions solved by different users."""
 
-    parent_question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE, related_name='solved')
-
-    user_text = models.TextField('Текст вопроса', null=True)
-    
-    user_score = models.FloatField('Балл', null=True, default=0.0)
+    parent_question = models.ForeignKey(BaseQuestion, on_delete=models.CASCADE, related_name='solved')    
+    user_score = models.FloatField('Балл пользователя', null=True, default=0.0)
 
     # TODO: it should be equal to the number of answers, validator
     user_points = models.IntegerField('Количество верных ответов', null=True)
@@ -452,7 +449,13 @@ class UserAnswer(BaseAnswer):
     We need it, because we want to have an ability to add multiple answers for one question (if we have several points in it, for example)."""
 
     parent_solved = models.ForeignKey(SolvedQuestion, on_delete=models.CASCADE, null=True, blank=True, related_name='user_answers')
-    is_right = models.BooleanField('Выбор варианта', null=True, blank=True)
+    user_flag_selected = models.BooleanField('Вариант отмечен как верный', null=True, blank=True)
+    user_text = models.TextField('Текстовый ответ пользователя', null=True, blank=True)
+
+    # Ratio which is used to calculate the score
+    # If it is 1 (100%) and there are no weights, then the user gets 1 point for this answer
+    # If there are weights, then the algorithm is more complicated
+    ratio = models.FloatField('Процент выполнения', null=True)
 
     class Meta:
         ordering = ['parent_solved']
