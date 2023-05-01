@@ -66,16 +66,20 @@ def filter_questions_by_query(query: str, questions):
 
     if not (section or topic):
 
-        search = QuestionDocument.search().query(
-            Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
-        )
-        results = search.execute()
-        document_ids = [hit.meta.id for hit in results.hits]
-        questions = Question.objects.filter(id__in=document_ids)
+        questions = Question.objects.filter(listed=True).filter(text__icontains=query).order_by('-id')
+
+        # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
+
+        # search = QuestionDocument.search().query(
+        #     Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
+        # )
+        # results = search.execute()
+        # document_ids = [hit.meta.id for hit in results.hits]
+        # questions = Question.objects.filter(id__in=document_ids)
         
-        # sort by relevance
-        document_ids = list(map(int, document_ids))
-        questions = sorted(questions, key=lambda question: document_ids.index(question.id))
+        # # sort by relevance
+        # document_ids = list(map(int, document_ids))
+        # questions = sorted(questions, key=lambda question: document_ids.index(question.id))
         
 
     return questions
