@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 
 import nested_admin
 
@@ -58,17 +60,13 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ['verbose_title', 'part', 'number']
     list_filter = ['listed', 'competition', 'year', 'new_stage']
 
+
     def get_search_results(self, request: HttpRequest, queryset: QuerySet[Any], search_term: str) -> Tuple[QuerySet[Any], bool]:
-
-        queryset = QuerySet(model=Question)
-        use_distinct = False
-
+        use_distinct = True
         if search_term:
             queryset = filter_questions_by_query(query=search_term, questions=queryset)
 
         return queryset, use_distinct
-    
-    search_fields = ['title', 'text']
 
 @admin.register(TestQuestion)
 class TestQuestionAdmin(admin.ModelAdmin):
