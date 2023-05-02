@@ -96,7 +96,35 @@
                 return cookieValue;
               }
 
+        
+              function submitAnswer(event, questionId) {
+                event.preventDefault(); // prevent the form from submitting normally
+              
+                var userAnswer = document.querySelector('input[name="user_answer"]:checked').value; // get the user's selected answer from the form
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/send_answer/" + questionId + "/", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+                xhr.onreadystatechange = function() {
+                  if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                      // update the page with the correct answer and user score
+                      // document.getElementById("correct-answer").innerHTML = response.correct_answer;
+                      document.getElementById("user-score-value").innerHTML = response.user_score;
+                      // make it visible
+                      document.getElementById("user-score").style.display = "block";
+                    } else {
+                      alert("An error occurred while submitting the answer.");
+                    }
+                  }
+                };
+                var data = JSON.stringify({ 'user_answer': userAnswer });
+                xhr.send(data);
+              }
+
         </script>
+          
 
     </head>
     <body>

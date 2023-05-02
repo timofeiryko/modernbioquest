@@ -20,5 +20,9 @@ urlpatterns = [
     path('accounts/', include('django_registration.backends.one_step.urls')),
     # ajax: save and unsave question
     path('save_question/<int:question_id>/', views.save_question, name='save_question'),
-    path('unsave_question/<int:question_id>/', views.unsave_question, name='unsave_question')
+    path('unsave_question/<int:question_id>/', views.unsave_question, name='unsave_question'),
+    # solve questions page
+    path('solve/<str:slug>', views.solve_question, name='solve_question'),
+    # ajax: send user answer and question id to server
+    path('send_answer/<int:question_id>/', views.send_answer, name='send_answer'),
 ]

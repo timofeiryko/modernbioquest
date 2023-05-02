@@ -6,7 +6,7 @@ from django.http import Http404
 from django.db.models.query import QuerySet
 from django.db.models import Q as DjangoQ
 
-from .models import Question, Competition, Section, Topic, NewStage, RightAnswer
+from .models import Question, Competition, Section, Topic, NewStage, RightAnswer, UserAnswer, SolvedQuestion, User
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
 from .configs import FUZZ_TRESHOLD
 
@@ -15,40 +15,69 @@ from typing import List, Tuple, Optional
 from elasticsearch_dsl import Q
 from .search_index import QuestionDocument
 
+def check_user_answers_P1(question: Question, user: User, user_answer: str) -> Tuple[List[UserAnswer], SolvedQuestion]:
+    """Checks user answers for multiple choice questions with one correct answer."""
 
-# def question_fast_search(query: str) -> QuerySet:
-#     """Returns questions by search query using Elasticsearch."""
+    # Create solved question object
+    solved_question = SolvedQuestion.objects.create(
+        parent_question=question,
+        solved_by=user,
+    )
 
-#     # Create an Elasticsearch search object
-#     s = Search(index='questions')
+    # Get right answers into a list
+    right_answers = list(question.right_answers.all())
 
-#     # Add a full-text search query to the search object
-#     s = s.query('multi_match', query=query, fields=['text', 'title', 'answer_variants.text', 'answer_variants.label' 'sections.name', 'topics.name'])
-
-#     # Execute the search query and get the matching `Question` objects
-#     matching_pks = [hit.meta.id for hit in s.execute()]
-
-#     # Filter the `questions` queryset by the matching primary keys
-#     questions = questions.filter(pk__in=matching_pks)
-
-#     return questions
-
-
-def extend_question_text(question: Question) -> str:
-    """Extends question text with its title, answer variants, scetions and topics."""
-
-    full_text = question.text
+    # Create user answer objects
+    user_answers = []
+    for right_answer in right_answers:
+        label, text, weight = right_answer.label, right_answer.text, right_answer.weight
+        flag = (user_answer == label)
+        is_right = (flag == right_answer.flag)
+        user_answers.append(
+            UserAnswer.objects.create(
+                parent_solved=solved_question,
+                label=label,
+                text=text,
+                weight=weight,
+                flag=flag,
+                is_right=is_right,
+                ratio=1 if is_right else 0
+            )
+        )
     
-    full_text += question.verbose_title
+    matrix = [ans.is_right for ans in user_answers]
+    solved_question.user_points = 1 if all(matrix) else 0
+    solved_question.user_score = 1 if all(matrix) else 0
 
-    answer_variants = question.answer_variants()[0]
-    for answer_variant in answer_variants:
-        full_text += ('\n' + answer_variant.label if answer_variant.label else '' + ' ' + answer_variant.text if answer_variant.text else '')
+    # Save everything to the database
+    # solved_question.save()
+    # for user_answer in user_answers:
+    #     user_answer.save()
 
-    full_text += ('\n' + ' '.join([section.name for section in question.sections.all()]))
-    full_text += ('\n' + ' '.join([topic.name for topic in question.topics.all()]))
+    return user_answers, solved_question
+        
 
-    return full_text
+def check_user_answers(question: Question, user: User, user_answers: List[str]) -> Tuple[List[UserAnswer], SolvedQuestion]:
+
+    if question.type == 'P1':
+        return check_user_answers_P1(question, user, user_answers[0])
+
+
+# def extend_question_text(question: Question) -> str:
+#     """Extends question text with its title, answer variants, scetions and topics."""
+
+#     full_text = question.text
+    
+#     full_text += question.verbose_title
+
+#     answer_variants = question.answer_variants()[0]
+#     for answer_variant in answer_variants:
+#         full_text += ('\n' + answer_variant.label if answer_variant.label else '' + ' ' + answer_variant.text if answer_variant.text else '')
+
+#     full_text += ('\n' + ' '.join([section.name for section in question.sections.all()]))
+#     full_text += ('\n' + ' '.join([topic.name for topic in question.topics.all()]))
+
+#     return full_text
 
 def filter_questions_by_query(query: str, questions):
     """Returns questions by search query."""
@@ -119,8 +148,6 @@ def get_question_by_link(link: str) -> Question:
     # to validate, that the link was parsed correctly
     correct_link = generate_question_link(competition_slug, stage_slug, year, grade, part, number, variant)
     assert link == correct_link, f'Link {link} is not valid, it shoud be {correct_link}!'
-    print(link)
-    print(variant)
 
     try:
         questions_batch =  Question.objects.filter(

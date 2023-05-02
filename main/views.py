@@ -15,8 +15,10 @@ from django_registration.backends.one_step.views import RegistrationView
 from .models import Question, Section, Competition, Profile
 from .configs import QUESTIONS_PER_PAGE
 from .services import get_question_by_link, get_questions_by_sections, filter_questions_by_query, advanced_filter_service
+from .services import check_user_answers
 
 import git
+import json
 
 @csrf_exempt
 def update(request):
@@ -351,3 +353,36 @@ def personal(request):
 
 def django_registration_complete(request):
     return redirect(reverse('main:personal'))
+
+def _answer_result(request, is_right):
+    user_message = 'Верно!' if is_right else 'Неверно'
+    return HttpResponse(user_message)
+
+@login_required
+@require_POST
+def send_answer(request, question_id):
+
+    # Retrieve the question from the database
+    question = get_object_or_404(Question, id=question_id)
+
+    user_answer = json.loads(request.body.decode('utf-8'))['user_answer']
+
+    # Check if the user has already answered this question
+    user_answers, solved_question = check_user_answers(question, request.user, [user_answer])
+
+    response_data = {
+        'user_score': solved_question.user_score,
+        'success': True,
+    }
+
+    return JsonResponse(response_data)
+
+
+def solve_question(request, slug):
+
+    question = get_question_by_link(slug)
+    context = {
+        'nav': [False, False, False, True],
+        'questions': question
+    }
+    return render(request, 'solve_question.html', context=context)

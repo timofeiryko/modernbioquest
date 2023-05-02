@@ -399,7 +399,7 @@ class SolvedQuestion(BaseModel):
     user_score = models.FloatField('Балл пользователя', null=True, default=0.0)
 
     # TODO: it should be equal to the number of answers, validator
-    user_points = models.IntegerField('Количество верных ответов', null=True)
+    user_points = models.IntegerField('Количество верных ответов', null=True, default=0)
     
     solved_by = models.ForeignKey(
         User,
@@ -449,8 +449,7 @@ class UserAnswer(BaseAnswer):
     We need it, because we want to have an ability to add multiple answers for one question (if we have several points in it, for example)."""
 
     parent_solved = models.ForeignKey(SolvedQuestion, on_delete=models.CASCADE, null=True, blank=True, related_name='user_answers')
-    user_flag_selected = models.BooleanField('Вариант отмечен как верный', null=True, blank=True)
-    user_text = models.TextField('Текстовый ответ пользователя', null=True, blank=True)
+    is_right = models.BooleanField('Верный ответ', null=True, blank=True)
 
     # Ratio which is used to calculate the score
     # If it is 1 (100%) and there are no weights, then the user gets 1 point for this answer

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Решать вопросы{% endblock %}
+
+{% block header %}
+<!-- Page header with logo and tagline-->
+<header class="py-1 bg-light border-bottom mb-4">
+    <div class="container">
+        <div class="text-center my-5">
+            <p class="lead mb-">Терпение и труд всё перетрут :)</p>
+            {% if not user.is_authenticated %}
+                <b><a href="{% url 'main:login' %}">Войдите</a> или <a href="{% url 'main:django_registration_register' %}">зарегистрируйтесь</a>, чтобы сохранять вопросы и получить доступ к дополнительным возможностям!</b>
+            {% endif %}
+            </p>
+        </div>
+    </div>
+</header>
+{% endblock header %}
+
+{% block content %}
+<!-- Page content-->
+<div class="container">
+    <div class="row">
+        <!-- Questions-->
+        <div class="col-lg-8">
+            {% for question in questions %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% include "question_body.html" %}
+                    {% include "question_images.html" %}
+
+                    <form onsubmit="submitAnswer(event, {{ question.id }})">
+                        {% if question.type == 'P1'%}
+                            {% for variant in question.answer_variants.0  %}
+                            <div class="form-check">
+                                <p>
+                                <input class="form-check-input" type="radio" name="user_answer" id="var_{{forloop.counter}}" value="{{ variant.label }}">
+                                <label class="form-check-label" for="var_{{forloop.counter}}">
+                                    {{ variant.label }}
+                                </label>
+                                </p>
+                            </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary">Проверить ответ</button>
+                        {% else %}
+                            ТАКОЙ ТИП ВОПРОСОВ ПОКА НЕ ПОДДЕРЖИВАЕТСЯ
+                        {% endif %}
+                    </form>
+
+                    <p id="user-score" style="display: none;">Ваш балл: <span id="user-score-value"></span></p>
+
+
+
+                </div>
+            </div>
+            {% endfor %} 
+        </div>
+
+        <!-- Side widgets-->
+        <div class="col-lg-4">
+            <!-- Search widget-->
+            <div class="card mb-4">
+                <div class="card-header">Поиск вопросов</div>
+                <div class="card-body">
+                    <form>
+                        <div class="input-group">
+                            <input class="form-control" type="text"
+                                placeholder="Тема или ключевое слово..." aria-label="Тема или ключевое слово..."
+                                aria-describedby="button-search" name="query"/>
+                            <button class="btn btn-primary" id="button-search" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock content %}
