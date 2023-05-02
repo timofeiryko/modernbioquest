@@ -377,7 +377,7 @@ def send_answer(request, question_id):
 
     return JsonResponse(response_data)
 
-
+@login_required
 def solve_question(request, slug):
 
     question = get_question_by_link(slug)
