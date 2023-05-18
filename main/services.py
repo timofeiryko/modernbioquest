@@ -5,6 +5,7 @@ The `scripts.py` is the other place where domain logic is placed (just some tool
 from django.http import Http404
 from django.db.models.query import QuerySet
 from django.db.models import Q as DjangoQ
+from django.db.models import Case, When
 
 from .models import Question, Competition, Section, Topic, NewStage, RightAnswer, UserAnswer, SolvedQuestion, User
 from .scripts import generate_question_link, get_stage_name, clean_query, fuzz_search
@@ -15,7 +16,7 @@ from typing import List, Tuple, Optional
 from elasticsearch_dsl import Q
 from .search_index import QuestionDocument
 
-def check_user_answers_P1(question: Question, user: User, user_answer: str) -> Tuple[List[UserAnswer], SolvedQuestion]:
+def check_user_answers_P1(question: Question, user: User, user_answer: str) -> Tuple[List[RightAnswer], List[UserAnswer], SolvedQuestion]:
     """Checks user answers for multiple choice questions with one correct answer."""
 
     # Create solved question object
@@ -32,7 +33,7 @@ def check_user_answers_P1(question: Question, user: User, user_answer: str) -> T
     for right_answer in right_answers:
         label, text, weight = right_answer.label, right_answer.text, right_answer.weight
         flag = (user_answer == label)
-        is_right = (flag == right_answer.flag)
+        is_right = (flag and right_answer.flag)
         user_answers.append(
             UserAnswer.objects.create(
                 parent_solved=solved_question,
@@ -44,20 +45,20 @@ def check_user_answers_P1(question: Question, user: User, user_answer: str) -> T
                 ratio=1 if is_right else 0
             )
         )
+
     
     matrix = [ans.is_right for ans in user_answers]
-    solved_question.user_points = 1 if all(matrix) else 0
-    solved_question.user_score = 1 if all(matrix) else 0
+    solved_question.user_points = 1 if any(matrix) else 0
+    solved_question.user_score = solved_question.parent_question.max_score if any(matrix) else 0
 
     # Save everything to the database
     # solved_question.save()
     # for user_answer in user_answers:
     #     user_answer.save()
 
-    return user_answers, solved_question
-        
+    return right_answers, user_answers, solved_question        
 
-def check_user_answers(question: Question, user: User, user_answers: List[str]) -> Tuple[List[UserAnswer], SolvedQuestion]:
+def check_user_answers(question: Question, user: User, user_answers: List[str]) -> Tuple[List[RightAnswer], List[UserAnswer], SolvedQuestion]:
 
     if question.type == 'P1':
         return check_user_answers_P1(question, user, user_answers[0])
@@ -99,22 +100,22 @@ def filter_questions_by_query(query: str, questions):
 
         questions = questions.filter(text__icontains=query)
 
-        # if text or label of RightAnswer matches query, also include this question
-        right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
-        questions = (questions | Question.objects.filter(right_answers__in=right_answers)).distinct()
+        # # if text or label of RightAnswer matches query, also include this question
+        # right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
+        # questions = (questions | Question.objects.filter(right_answers__in=right_answers)).distinct()
 
-        # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
+        # # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
 
-        # search = QuestionDocument.search().query(
-        #     Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
-        # )
-        # results = search.execute()
-        # document_ids = [hit.meta.id for hit in results.hits]
-        # questions = Question.objects.filter(id__in=document_ids)
+        search = QuestionDocument.search().query(
+            Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
+        )
+        results = search.execute()
+        document_ids = [hit.meta.id for hit in results.hits]
+        questions = Question.objects.filter(id__in=document_ids)
         
-        # # sort by relevance
-        # document_ids = list(map(int, document_ids))
-        # questions = sorted(questions, key=lambda question: document_ids.index(question.id))
+        # sort by relevance, returning queryset
+        relevance_cases = [When(id=id, then=index) for index, id in enumerate(document_ids)]
+        questions = questions.order_by(Case(*relevance_cases, default=len(document_ids)))
         
 
     return questions

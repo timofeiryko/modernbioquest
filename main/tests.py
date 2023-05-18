@@ -57,7 +57,7 @@ class TestCheckUserAnswers(TestCase):
         # Test with correct answer
 
         user_answer = 'Paris'
-        user_answers, solved_question = check_user_answers_P1(self.question, self.user, user_answer)
+        right_answers, user_answers, solved_question = check_user_answers_P1(self.question, self.user, user_answer)
         
         # Test that user answers objects a created correctly
         self.assertEqual(len(user_answers), 4)
@@ -84,7 +84,7 @@ class TestCheckUserAnswers(TestCase):
         # Test with incorrect answer
 
         user_answer = 'London'
-        user_answers, solved_question = check_user_answers_P1(self.question, self.user, user_answer)
+        right_answers, user_answers, solved_question = check_user_answers_P1(self.question, self.user, user_answer)
 
         # print all solved questions params
         for param in solved_question.__dict__:

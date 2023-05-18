@@ -49,7 +49,15 @@
                         {% endif %}
                     </form>
 
-                    <p id="user-score" style="display: none;">Ваш балл: <span id="user-score-value"></span></p>
+                    <div id="question-feedback" style="display: none;">
+                        {% if question.type == 'P1'%}
+                            {% for variant in question.answer_variants.0  %}
+                            {% endfor %}
+                            <p><span id="user-message"></span>Ваш балл: <span id="user-score-value"></span></p>
+                            {% else %}
+                            ТАКОЙ ТИП ВОПРОСОВ ПОКА НЕ ПОДДЕРЖИВАЕТСЯ
+                        {% endif %}
+                    </div>
 
 
 

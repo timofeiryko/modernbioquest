@@ -19,6 +19,7 @@ from .services import check_user_answers
 
 import git
 import json
+from collections import namedtuple
 
 @csrf_exempt
 def update(request):
@@ -365,15 +366,41 @@ def send_answer(request, question_id):
     # Retrieve the question from the database
     question = get_object_or_404(Question, id=question_id)
 
-    user_answer = json.loads(request.body.decode('utf-8'))['user_answer']
+    user_answer_str = json.loads(request.body.decode('utf-8'))['user_answer']
 
-    # Check if the user has already answered this question
-    user_answers, solved_question = check_user_answers(question, request.user, [user_answer])
+    # Check the unaswer and calculate the score (everyting is automaticllly saved in this service function)
+    right_answers, user_answers, solved_question = check_user_answers(question, request.user, [user_answer_str])
+
+    # define bootstrap classses for each of user answers: .text-danger, .text-success, .text-warning
+    bootstrap_classes = []
+    if solved_question.parent_question.type == 'P1':
+        for right_ans, user_ans in zip(right_answers, user_answers):
+            if right_ans.flag:
+                bootstrap_classes.append('.text-success')
+            elif not user_ans.is_right:
+                bootstrap_classes.append('.text-danger')
+            else:
+                bootstrap_classes.append('')
+    else:
+        bootstrap_classes = [] * len(user_answers)
+        # TODO
+
+    feedback = solved_question.feedback
+    if feedback.right:
+        user_message = 'Верно!'
+    elif feedback.partially_right:
+        user_message = 'Частично верно... Есть куда стремиться :)'
+    elif feedback.wrong:
+        user_message = 'Неверно :( Ботайте, и всё обязательно получится!'
 
     response_data = {
         'user_score': solved_question.user_score,
-        'success': True,
+        'max_score': solved_question.parent_question.max_score,
+        'user_message': user_message,
+        'colors': bootstrap_classes
     }
+
+    response_data['success'] = True
 
     return JsonResponse(response_data)
 

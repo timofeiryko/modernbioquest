@@ -392,6 +392,8 @@ class Question(BaseQuestion):
         shortened = str(self.text)[:25] + '...' if not self.title else self.title
         return shortened
 
+Feedback = namedtuple('Feedback', ['right', 'partially_right', 'wrong'])
+
 class SolvedQuestion(BaseModel):
     """To store information about the questions solved by different users."""
 
@@ -408,6 +410,22 @@ class SolvedQuestion(BaseModel):
         related_name='solved_questions',
         verbose_name='Решено пользователем'
     )
+
+    @property
+    def feedback(self) -> Feedback:
+        """Returns a namedtuple with 3 fields: right, partially_right, wrong, with boolean values."""
+
+        max_acore = self.parent_question.max_score
+        user_score = self.user_score
+
+        if user_score == max_acore:
+            feedback = Feedback(right=True, partially_right=False, wrong=False)
+        elif user_score > 0:
+            feedback = Feedback(right=False, partially_right=True, wrong=False)
+        else:
+            feedback = Feedback(right=False, partially_right=False, wrong=True)
+
+        return feedback
 
 class BaseAnswer(BaseModel):
     """To store answers for the questions. It is an abstract class, because there are different types of answers: right and user.
