@@ -100,22 +100,22 @@ def filter_questions_by_query(query: str, questions):
 
         questions = questions.filter(text__icontains=query)
 
-        # # if text or label of RightAnswer matches query, also include this question
-        # right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
-        # questions = (questions | Question.objects.filter(right_answers__in=right_answers)).distinct()
+        # if text or label of RightAnswer matches query, also include this question
+        right_answers = RightAnswer.objects.filter(DjangoQ(text__icontains=query) | DjangoQ(label__icontains=query))
+        questions = (questions | Question.objects.filter(right_answers__in=right_answers)).distinct()
 
-        # # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
+        # ELASTICSEARCH WORKING BUT TEMPORARILY DISABLED BECAUSE OF PYTHONANYWHERE
 
-        search = QuestionDocument.search().query(
-            Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
-        )
-        results = search.execute()
-        document_ids = [hit.meta.id for hit in results.hits]
-        questions = Question.objects.filter(id__in=document_ids)
+        # search = QuestionDocument.search().query(
+        #     Q('multi_match', query=query, fields=['text', 'title', 'sections.name', 'topics.name'])
+        # )
+        # results = search.execute()
+        # document_ids = [hit.meta.id for hit in results.hits]
+        # questions = Question.objects.filter(id__in=document_ids)
         
-        # sort by relevance, returning queryset
-        relevance_cases = [When(id=id, then=index) for index, id in enumerate(document_ids)]
-        questions = questions.order_by(Case(*relevance_cases, default=len(document_ids)))
+        # # sort by relevance, returning queryset
+        # relevance_cases = [When(id=id, then=index) for index, id in enumerate(document_ids)]
+        # questions = questions.order_by(Case(*relevance_cases, default=len(document_ids)))
         
 
     return questions
