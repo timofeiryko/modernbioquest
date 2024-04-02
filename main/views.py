@@ -299,6 +299,10 @@ def about(request):
     }
     return render(request, 'about.html', context=context)
 
+def roadmap(request):
+    return render(request, 'roadmap.html')
+
+
 @cache_page(60 * 10)
 def index(request):
 

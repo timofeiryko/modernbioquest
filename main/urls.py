@@ -25,4 +25,6 @@ urlpatterns = [
     path('solve/<str:slug>', views.solve_question, name='solve_question'),
     # ajax: send user answer and question id to server
     path('send_answer/<int:question_id>/', views.send_answer, name='send_answer'),
+    # roadmap
+    path('roadmap/', views.roadmap, name='roadmap')
 ]
