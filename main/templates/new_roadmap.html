@@ -6,6 +6,9 @@
 
     <head>
 
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
         <!-- Font Awesome -->
         <link
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -25,7 +28,7 @@
         <!-- Favicon-->
         <link rel="icon" type="image/png" href="{% static 'assets/logo.png' %}">
 
-        <style>
+        <!-- <style>
 
             body {
             background-color: #fbfbfb;
@@ -68,11 +71,7 @@
             overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
             }
 
-        </style>
-
-        <script>
-            initMDB({ Collapse, Ripple });
-        </script>
+        </style> -->
 
     </head>
     
@@ -83,24 +82,77 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"
         ></script>
 
-        <header>
-            <!-- Sidebar -->
+        <script>
+            initMDB({ Collapse, Ripple });
+        </script>
 
-            <div class="overflow-auto">
-            <nav
-                 id="sidebarMenu"
-                 class="collapse d-lg-block sidebar collapse bg-white"
-                 >
-              <div class="position-sticky">
+        <main>
 
-                <div class="overflow-auto">
-                <div class="list-group list-group-flush mx-3 mt-4 fs-5">
+            <div class="container pt-3">
+              <!--Section: Content-->
+              <section class="text-start">
 
-                    <p>Выберите уровень источников:
+                <h1 class="mb-3"><strong>Как заботать биологию? Гайд олимпиадника</strong></h1>
+
+                <div class="row">
+
+                    <!--Main information-->
+                    <div class="col-lg-12 col-md-12 mb-3 fs-5">
+                    <p>
+                        Все источники информации мы разделили на базовые, продвинутые и дополнительные.
+    
+                        <ul class="list-unstyled">
+                            <li> <span class="badge badge-primary"><i class="fas fa-battery-quarter"></i></span> <b>Базовые</b>: подходят тем, кто только начинает свой олимпиадный путь, а также для повторения</li>
+                            <li> <span class="badge badge-primary"><i class="fas fa-battery-three-quarters"></i></span> <b>Продвинутые</b>: их вполне достаточно для ВсОШ и перечневых олимпиад</li>
+                            <li> <span class="badge badge-primary"><i class="fas fa-battery-full"></i></span> <b>Дополнительные</b>: сюда можно погрузиться из интереса или использовать как альтернативу</li>
+                          </ul>
+                    </p>
+
+                <!-- Buttons trigger collapse -->
+                <a
+                class="btn btn-primary mb-3"
+                data-mdb-collapse-init
+                data-mdb-ripple-init
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                >
+                Link with href
+                </a>
+                <button
+                class="btn btn-primary mb-3"
+                type="button"
+                data-mdb-collapse-init
+                data-mdb-ripple-init
+                data-mdb-target="#collapseExample"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                >
+                Button with data-mdb-target
+                </button>
+
+                <!-- Collapsed content -->
+                <div class="collapse" id="collapseExample">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
+                sapiente ea proident.
+                </div>
+
+                    <p>Выберите, какие из них вам показать!</p>
+                
+                    <p>
     
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1" checked/>
-                            <label class="form-check-label" for="inlineCheckbox1"><i class="fas fa-battery-quarter"></i> Базовые</label>
+                            <label class="form-check-label" for="inlineCheckbox1"><i class="fas fa-battery-quarter"
+                                type="button"
+                                data-mdb-collapse-init
+                                data-mdb-ripple-init
+                                data-mdb-target="#collapseExample"
+                                aria-expanded="true"
+                                aria-controls="collapseExample"
+                                ></i> Базовые</label>
                         </div>
                         
                         <div class="form-check form-check-inline">
@@ -113,14 +165,14 @@
                             <label class="form-check-label" for="inlineCheckbox3"><i class="fas fa-battery-full"></i> Дополнительные</label>
                         </div>
     
-                        <div class="collapse" id="LEVEL1">
-                            БАЗОВЫЕ ИСТОЧНИКИ
-                        </div>
-    
                     </p>
-
-                    <p>Кроме того, вы можете отфильтровать источники по типу контента:
-       
+    
+                    <p>Кроме того, вы можете отфильтровать источники по типу контента:</p>
+    
+                    <p>
+    
+                        <!-- CHANGE IDS AND VALUES!!! -->
+    
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
                             <label class="form-check-label" for="inlineCheckbox11"><i class="fas fa-book"></i> Книги</label>
@@ -137,112 +189,18 @@
                         </div>
     
                     </p>
-
-                    <p>Разделы биологии:
-
-                        <div class="overflow-auto p-3 bg-light">
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">Биология в целом</label>
-                            </div>
-        
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🍄 Биоразнообразие</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🧪 Биохимия</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">☘️ Ботаника</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🧬 Генетика</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🪱 Зоология беспозвоночных</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🐦 Зоология позвоночных</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🔬 Клеточная и молекулярная биология</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🦠 Микробиология</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🪴 Физиология растений</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="option11" checked/>
-                                <label class="form-check-label" for="inlineCheckbox11">🩸 Человек</label>
-                            </div>
-
-                        </div>
-    
-                    </p>
-
-                </div>
-                </div>
-              </div>
-            </nav>
-            </div>
-            <!-- Sidebar -->
-
-        </header>
-
-        <main style="margin-top: 50px">
-
-            <div class="container pt-4">
-              <!--Section: Content-->
-              <section class="text-start">
-
-                <h1 class="mb-5"><strong>Как заботать биологию? Гайд олимпиадника</strong></h1>
-
-                <div class="row">
-
-                    <!--Main information-->
-                    <div class="col-lg-12 col-md-12 mb-4 fs-5">
-                    <p>
-                        Все источники информации мы разделили на базовые, продвинутые и дополнительные.
-    
-                        <ul class="list-unstyled">
-                            <li> <span class="badge badge-primary"><i class="fas fa-battery-quarter"></i></span> <b>Базовые</b>: подходят тем, кто только начинает свой олимпиадный путь, а также для повторения</li>
-                            <li> <span class="badge badge-primary"><i class="fas fa-battery-three-quarters"></i></span> <b>Продвинутые</b>: их вполне достаточно для ВсОШ и перечневых олимпиад</li>
-                            <li> <span class="badge badge-primary"><i class="fas fa-battery-full"></i></span> <b>Дополнительные</b>: сюда можно погрузиться из интереса или использовать как альтернативу</li>
-                          </ul>
-                    </p>
-    
-                    <p>⬅️ Слева вы можете выбрать, какие из них вам показать!</p>
-    
-                    <!-- <div class="extra-margins"></div> -->
-    
-                    <h3 class="h3-responsive wow fadeInDown"> <span class="badge badge-primary"><i class="fas fa-battery-quarter"></i></span> Базовые источники по всей биологии</h3>
                     
                 </div>
+
+                <div class="collapse" id="collapseExample">
+
+                <div class="row">
+                    <h3 class="h3-responsive wow fadeInDown"> <span class="badge badge-primary"><i class="fas fa-battery-quarter"></i></span> Базовые источники по всей биологии</h3>
+                </div>
           
                 <div class="row">
           
-                  <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                  <div class="col-lg-4 col-md-6 mb-3 d-flex align-items-stretch">
                     <div class="card">
                       <div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
                         <img src="https://i.ibb.co/Xxv7WW8/Untitled-2.png" class="img-fluid" />
@@ -255,12 +213,13 @@
                         <p class="card-text">
                             Пожалуй, лучший учебник для старта. Книга снабжена очень красивыми цветными иллюстрации и вопросами для закрепления материала. На русском доступна в виде приложения на Android, однако скоро ожидается и в формате книги
                         </p>
-                        <a href="#!" class="btn btn-primary" data-mdb-ripple-init>Read</a>
+                        <a href="https://vk.com/wall-210287543_7532" class="btn btn-primary">Скачать на русском (apk)</a>
+                        </p><a href="https://vk.com/wall-37948240_353531" class="btn btn-primary">Скачать на английском (pdf)</a>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-lg-4 col-md-12 mb-4 d-flex align-items-stretch">
+                  <div class="col-lg-4 col-md-12 mb-3 d-flex align-items-stretch">
                     <div class="card">
                     <div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
                         <img src="https://i.ibb.co/SxpHHMr/Untitled-1.png" class="img-fluid" />
@@ -271,14 +230,14 @@
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-book"></i> Тейлор, Грин, Стаут</h5>
                         <p class="card-text">
-                            Довольно старая, но хорошая книга, которая подходит начинающим — "школьный учебник здорового человека". Особого внимания заслуживает 
+                            Довольно старая, но хорошая книга, которая подходит начинающим — "школьный учебник здорового человека". Особого внимания заслуживают главы по развитию жизни на Земле и экологии.
                         </p>
                         <a href="https://vk.com/wall-214495945_4" class="btn btn-primary" data-mdb-ripple-init>Скачать</a>
                     </div>
                     </div>
                   </div>
           
-                  <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                  <div class="col-lg-4 col-md-6 mb-3 d-flex align-items-stretch">
                     <div class="card">
                       <div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
                         <img src="https://i.ibb.co/102cCkX/Screenshot-from-2024-04-02-23-02-01.png" class="img-fluid" />
@@ -295,7 +254,6 @@
                                 <li> <a href="https://teach-in.ru/course/one-hundred-hours-of-school-biology">🧍‍♂️Анатомия и физиология человека</a></li>
                             </ul>
                         </p>
-                        <a href="#!" class="btn btn-primary" data-mdb-ripple-init>Read</a>
                       </div>
                     </div>
                   </div>
@@ -304,7 +262,7 @@
           
                 <div class="row">
                     
-                    <div class="col-lg-6 col-md-12 mb-4 d-flex align-items-stretch">
+                    <div class="col-lg-6 col-md-12 mb-3 d-flex align-items-stretch">
                         <div class="card">
                         <div class="bg-image hover-overlay" data-mdb-ripple-init data-mdb-ripple-color="light">
                             <img src="https://i.ibb.co/936N59z/photo-2024-04-02-23-58-21.jpg" class="img-fluid" />
@@ -324,13 +282,15 @@
                                 </ul>
     
                             </p>
-                            <a href="#!" class="btn btn-primary" data-mdb-ripple-init>Read</a>
                         </div>
                         </div>
                     </div>
 
 
                 </div>
+
+                </div>
+
               </section>
 
             </div>
